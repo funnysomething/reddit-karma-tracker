@@ -6,26 +6,26 @@ import { HistoryData } from '../../lib/types';
 
 // Mock Recharts components to avoid canvas rendering issues in tests
 vi.mock('recharts', () => ({
-  LineChart: ({ children, ...props }: any) => (
+  LineChart: ({ children, ...props }: { children: React.ReactNode; [key: string]: unknown }) => (
     <div data-testid="line-chart" {...props}>
       {children}
     </div>
   ),
-  Line: ({ dataKey, name, ...props }: any) => (
+  Line: ({ dataKey, name, ...props }: { dataKey: string; name: string; [key: string]: unknown }) => (
     <div data-testid={`line-${dataKey}`} data-name={name} {...props} />
   ),
-  XAxis: (props: any) => <div data-testid="x-axis" {...props} />,
-  YAxis: (props: any) => <div data-testid="y-axis" {...props} />,
-  CartesianGrid: (props: any) => <div data-testid="cartesian-grid" {...props} />,
-  Tooltip: (props: any) => <div data-testid="tooltip" {...props} />,
-  Legend: (props: any) => <div data-testid="legend" {...props} />,
-  ResponsiveContainer: ({ children, ...props }: any) => (
+  XAxis: (props: Record<string, unknown>) => <div data-testid="x-axis" {...props} />,
+  YAxis: (props: Record<string, unknown>) => <div data-testid="y-axis" {...props} />,
+  CartesianGrid: (props: Record<string, unknown>) => <div data-testid="cartesian-grid" {...props} />,
+  Tooltip: (props: Record<string, unknown>) => <div data-testid="tooltip" {...props} />,
+  Legend: (props: Record<string, unknown>) => <div data-testid="legend" {...props} />,
+  ResponsiveContainer: ({ children, ...props }: { children: React.ReactNode; [key: string]: unknown }) => (
     <div data-testid="responsive-container" {...props}>
       {children}
     </div>
   ),
-  Brush: (props: any) => <div data-testid="brush" {...props} />,
-  ReferenceLine: (props: any) => <div data-testid="reference-line" {...props} />
+  Brush: (props: Record<string, unknown>) => <div data-testid="brush" {...props} />,
+  ReferenceLine: (props: Record<string, unknown>) => <div data-testid="reference-line" {...props} />
 }));
 
 describe('UserChart Component', () => {
@@ -123,7 +123,7 @@ describe('UserChart Component', () => {
     });
 
     it('should render empty state when data is null', () => {
-      render(<UserChart username="testuser" data={null as any} metric="karma" />);
+      render(<UserChart username="testuser" data={null as unknown as HistoryData[]} metric="karma" />);
       
       expect(screen.getByText('No data available')).toBeInTheDocument();
     });

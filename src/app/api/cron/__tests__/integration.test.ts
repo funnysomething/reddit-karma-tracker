@@ -111,20 +111,20 @@ describe('Cron Data Collection Integration', () => {
     expect(data.results).toHaveLength(3);
 
     // Verify successful collections
-    const spezResult = data.results.find((r: any) => r.username === 'spez');
+    const spezResult = data.results.find((r: { username: string }) => r.username === 'spez');
     expect(spezResult).toBeDefined();
     expect(spezResult.success).toBe(true);
     expect(spezResult.karma).toBe(150000);
     expect(spezResult.postCount).toBe(1200);
 
-    const kn0thingResult = data.results.find((r: any) => r.username === 'kn0thing');
+    const kn0thingResult = data.results.find((r: { username: string }) => r.username === 'kn0thing');
     expect(kn0thingResult).toBeDefined();
     expect(kn0thingResult.success).toBe(true);
     expect(kn0thingResult.karma).toBe(75000);
     expect(kn0thingResult.postCount).toBe(800);
 
     // Verify failed collection
-    const failedResult = data.results.find((r: any) => r.username === 'nonexistentuser');
+    const failedResult = data.results.find((r: { username: string }) => r.username === 'nonexistentuser');
     expect(failedResult).toBeDefined();
     expect(failedResult.success).toBe(false);
     expect(failedResult.error).toBe('User not found or suspended');
@@ -187,7 +187,7 @@ describe('Cron Data Collection Integration', () => {
 
     // Verify all users were processed
     for (let i = 1; i <= 12; i++) {
-      const userResult = data.results.find((r: any) => r.username === `user${i}`);
+      const userResult = data.results.find((r: { username: string }) => r.username === `user${i}`);
       expect(userResult).toBeDefined();
       expect(userResult.success).toBe(true);
       expect(userResult.karma).toBe(i * 1000);

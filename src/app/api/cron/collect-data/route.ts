@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
       }, { status: 500 });
     }
 
-    const users = usersResult.data;
+    const users = usersResult.data || [];
     
     if (users.length === 0) {
       DataCollectionLogger.info('No users to collect data for');

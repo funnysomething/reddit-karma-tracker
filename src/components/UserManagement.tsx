@@ -33,11 +33,11 @@ export default function UserManagement({
       const data: ApiResponse<TrackedUser[]> = await response.json();
 
       if (data.success) {
-        setTrackedUsers(data.data);
+        setTrackedUsers(data.data || []);
       } else {
         setError(data.error || 'Failed to load tracked users');
       }
-    } catch (err) {
+    } catch {
       setError('Network error while loading users');
     } finally {
       setIsLoadingUsers(false);
@@ -103,7 +103,7 @@ export default function UserManagement({
 
       const data: ApiResponse<TrackedUser> = await response.json();
 
-      if (data.success) {
+      if (data.success && data.data) {
         const newUser = data.data;
         setTrackedUsers(prev => [...prev, newUser]);
         setUsername('');
@@ -114,7 +114,7 @@ export default function UserManagement({
       } else {
         setError(data.error || 'Failed to add user');
       }
-    } catch (err) {
+    } catch {
       setError('Network error while adding user');
     } finally {
       setIsLoading(false);
@@ -137,7 +137,7 @@ export default function UserManagement({
       } else {
         setError(data.error || 'Failed to remove user');
       }
-    } catch (err) {
+    } catch {
       setError('Network error while removing user');
     }
   };

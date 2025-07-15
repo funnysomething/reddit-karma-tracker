@@ -26,7 +26,7 @@ export interface RedditError {
 export function classifyRedditError(error: unknown, username?: string): RedditError {
   // Handle axios errors
   if (typeof error === 'object' && error !== null && 'response' in error) {
-    const axiosError = error as { response?: { status?: number; data?: any } };
+    const axiosError = error as { response?: { status?: number; data?: unknown } };
     const status = axiosError.response?.status;
     
     switch (status) {

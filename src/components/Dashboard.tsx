@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import UserManagement from './UserManagement';
 import ChartContainer from './ChartContainer';
 import CombinedChartContainer from './CombinedChartContainer';
@@ -26,13 +26,6 @@ export default function Dashboard() {
     }
   }, [selectedUser]);
 
-  // Load all users history for combined view
-  useEffect(() => {
-    if (viewMode === 'combined' && trackedUsers.length > 0) {
-      loadAllUsersHistory();
-    }
-  }, [viewMode, trackedUsers]);
-
   const loadUserHistory = async (username: string) => {
     try {
       setIsLoadingHistory(true);
@@ -40,7 +33,7 @@ export default function Dashboard() {
       const data: ApiResponse<HistoryData[]> = await response.json();
 
       if (data.success) {
-        setUserHistory(data.data);
+        setUserHistory(data.data || []);
       } else {
         console.error('Failed to load user history:', data.error);
         setUserHistory([]);
@@ -53,7 +46,7 @@ export default function Dashboard() {
     }
   };
 
-  const loadAllUsersHistory = async () => {
+  const loadAllUsersHistory = useCallback(async () => {
     try {
       setIsLoadingHistory(true);
       const historyPromises = trackedUsers.map(async (user) => {
@@ -69,7 +62,7 @@ export default function Dashboard() {
       const historyMap: Record<string, HistoryData[]> = {};
       
       results.forEach(({ username, history }) => {
-        historyMap[username] = history;
+        historyMap[username] = history || [];
       });
 
       setAllUsersHistory(historyMap);
@@ -79,7 +72,14 @@ export default function Dashboard() {
     } finally {
       setIsLoadingHistory(false);
     }
-  };
+  }, [trackedUsers]);
+
+  // Load all users history for combined view
+  useEffect(() => {
+    if (viewMode === 'combined' && trackedUsers.length > 0) {
+      loadAllUsersHistory();
+    }
+  }, [viewMode, trackedUsers, loadAllUsersHistory]);
 
   const handleUserAdded = (user: TrackedUser) => {
     setTrackedUsers(prev => [...prev, user]);

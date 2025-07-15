@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { TrackedUsersRepository, UserHistoryRepository, validateUsername } from '../../../../lib/database';
-import { ApiResponse, HistoryData } from '../../../../lib/types';
+import { TrackedUsersRepository, validateUsername } from '../../../../lib/database';
+import { ApiResponse } from '../../../../lib/types';
 
 interface RouteParams {
   params: {

@@ -11,7 +11,7 @@ export interface LogEntry {
   level: LogLevel;
   message: string;
   timestamp: string;
-  context?: Record<string, any>;
+  context?: Record<string, unknown>;
   error?: Error;
 }
 
@@ -38,7 +38,7 @@ export class DataCollectionLogger {
   /**
    * Log a message with specified level
    */
-  static log(level: LogLevel, message: string, context?: Record<string, any>, error?: Error): void {
+  static log(level: LogLevel, message: string, context?: Record<string, unknown>, error?: Error): void {
     const entry: LogEntry = {
       level,
       message,
@@ -80,28 +80,28 @@ export class DataCollectionLogger {
   /**
    * Log debug message
    */
-  static debug(message: string, context?: Record<string, any>): void {
+  static debug(message: string, context?: Record<string, unknown>): void {
     this.log(LogLevel.DEBUG, message, context);
   }
 
   /**
    * Log info message
    */
-  static info(message: string, context?: Record<string, any>): void {
+  static info(message: string, context?: Record<string, unknown>): void {
     this.log(LogLevel.INFO, message, context);
   }
 
   /**
    * Log warning message
    */
-  static warn(message: string, context?: Record<string, any>): void {
+  static warn(message: string, context?: Record<string, unknown>): void {
     this.log(LogLevel.WARN, message, context);
   }
 
   /**
    * Log error message
    */
-  static error(message: string, context?: Record<string, any>, error?: Error): void {
+  static error(message: string, context?: Record<string, unknown>, error?: Error): void {
     this.log(LogLevel.ERROR, message, context, error);
   }
 
@@ -195,7 +195,7 @@ export class DataCollectionLogger {
   /**
    * Log user collection success
    */
-  static logUserSuccess(username: string, context?: Record<string, any>): void {
+  static logUserSuccess(username: string, context?: Record<string, unknown>): void {
     this.debug(`User data collected successfully: ${username}`, context);
   }
 

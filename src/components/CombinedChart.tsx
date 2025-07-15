@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -64,30 +64,19 @@ export default function CombinedChart({
     labels: Date[];
     datasets: Array<{
       label: string;
-      data: number[];
+      data: (number | null)[];
       borderColor: string;
       backgroundColor: string;
       tension: number;
       pointRadius: number;
       pointHoverRadius: number;
       fill: boolean;
+      spanGaps?: boolean;
     }>;
   } | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  useEffect(() => {
-    if (!data || Object.keys(data).length === 0) {
-      setIsLoading(false);
-      return;
-    }
-
-    // Process data for chart
-    const processedData = processChartData(data, timeRange, metric);
-    setChartData(processedData);
-    setIsLoading(false);
-  }, [data, timeRange, metric]);
-
-  const filterDataByTimeRange = (data: HistoryData[], range: string): HistoryData[] => {
+  const filterDataByTimeRange = useCallback((data: HistoryData[], range: string): HistoryData[] => {
     if (range === 'all') return data;
     
     const now = new Date();
@@ -103,9 +92,9 @@ export default function CombinedChart({
     
     const cutoffDate = new Date(now.setDate(now.getDate() - daysToSubtract));
     return data.filter(item => new Date(item.collected_at) >= cutoffDate);
-  };
+  }, []);
 
-  const processChartData = (
+  const processChartData = useCallback((
     userData: Record<string, HistoryData[]>, 
     range: string, 
     selectedMetric: string
@@ -174,7 +163,19 @@ export default function CombinedChart({
       labels: sortedTimestamps,
       datasets
     };
-  };
+  }, [filterDataByTimeRange]);
+
+  useEffect(() => {
+    if (!data || Object.keys(data).length === 0) {
+      setIsLoading(false);
+      return;
+    }
+
+    // Process data for chart
+    const processedData = processChartData(data, timeRange, metric);
+    setChartData(processedData);
+    setIsLoading(false);
+  }, [data, timeRange, metric, processChartData]);
 
   const chartOptions: ChartOptions<'line'> = {
     responsive: true,

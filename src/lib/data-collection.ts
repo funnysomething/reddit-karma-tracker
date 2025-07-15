@@ -1,7 +1,7 @@
 import { fetchRedditUserData } from './reddit-api';
 import { TrackedUsersRepository, UserHistoryRepository } from './database';
-import { RedditUserData, HistoryData, ApiResponse } from './types';
-import { classifyRedditError, getUserFriendlyErrorMessage, RedditErrorType } from './error-handling';
+import { HistoryData, ApiResponse } from './types';
+import { classifyRedditError, getUserFriendlyErrorMessage } from './error-handling';
 import { DataCollectionLogger, CollectionMetrics } from './logging';
 
 // Data collection service for Reddit user data
@@ -70,7 +70,7 @@ export class DataCollectionService {
         };
       }
 
-      const trackedUsers = usersResult.data;
+      const trackedUsers = usersResult.data || [];
       
       // Initialize metrics and logging
       metrics = DataCollectionLogger.logCollectionStart(trackedUsers.length);
@@ -308,7 +308,7 @@ export class DataCollectionService {
         };
       }
 
-      const latestData = result.data.length > 0 ? result.data[result.data.length - 1] : null;
+      const latestData = (result.data && result.data.length > 0) ? result.data[result.data.length - 1] : null;
       
       return {
         success: true,

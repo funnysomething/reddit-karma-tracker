@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import axios from 'axios';
-import { RedditApiClient, fetchRedditUserData, validateRedditUsername } from '../reddit-api';
+import { RedditApiClient } from '../reddit-api';
 
 // Mock axios
 vi.mock('axios');
@@ -8,7 +8,7 @@ const mockedAxios = vi.mocked(axios);
 
 describe('RedditApiClient', () => {
   let client: RedditApiClient;
-  let mockAxiosInstance: any;
+  let mockAxiosInstance: { get: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -165,7 +165,7 @@ describe('Core functionality tests', () => {
 
 describe('Error handling edge cases', () => {
   let client: RedditApiClient;
-  let mockAxiosInstance: any;
+  let mockAxiosInstance: { get: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
     vi.clearAllMocks();

@@ -129,7 +129,7 @@ describe('UserManagement Component', () => {
     const onUserAdded = vi.fn();
     
     // Create a delayed promise for the add user request
-    let resolveAddUser: (value: any) => void;
+    let resolveAddUser: (value: { ok: boolean; json: () => Promise<unknown> }) => void;
     const addUserPromise = new Promise((resolve) => {
       resolveAddUser = resolve;
     });

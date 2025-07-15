@@ -10,8 +10,7 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-  Brush,
-  ReferenceLine
+  Brush
 } from 'recharts';
 import { HistoryData } from '../lib/types';
 
@@ -103,13 +102,13 @@ export default function UserChart({ username, data, metric, className = '' }: Us
   }, [chartData, metric]);
 
   // Custom tooltip component
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: Array<{ payload: HistoryData }>; label?: string }) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (
         <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
           <p className="text-sm font-medium text-gray-900 mb-2">
-            {new Date(label).toLocaleDateString('en-US', {
+            {new Date(label || '').toLocaleDateString('en-US', {
               weekday: 'short',
               year: 'numeric',
               month: 'short',
@@ -127,7 +126,7 @@ export default function UserChart({ username, data, metric, className = '' }: Us
             <div className="flex items-center">
               <div className="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
               <span className="text-sm text-gray-600">Posts: </span>
-              <span className="text-sm font-medium text-gray-900">{data.posts.toLocaleString()}</span>
+              <span className="text-sm font-medium text-gray-900">{data.post_count.toLocaleString()}</span>
             </div>
           </div>
         </div>
