@@ -23,13 +23,13 @@ export default function CombinedChartContainer({
   const totalDataPoints = Object.values(data).reduce((sum, userHistory) => sum + userHistory.length, 0);
 
   return (
-    <div className={`bg-white rounded-lg shadow-md p-6 ${className}`}>
+    <div className={`bg-secondary rounded-lg shadow-theme-md p-6 transition-theme ${className}`}>
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-4 gap-4">
         <div>
-          <h2 className="text-xl font-semibold text-gray-800">
+          <h2 className="text-xl font-semibold text-primary">
             Multi-User Comparison
           </h2>
-          <p className="text-sm text-gray-600 mt-1">
+          <p className="text-sm text-secondary mt-1">
             Comparing {userCount} user{userCount !== 1 ? 's' : ''}
           </p>
         </div>
@@ -39,10 +39,10 @@ export default function CombinedChartContainer({
           <div className="inline-flex rounded-md shadow-sm">
             <button
               type="button"
-              className={`px-4 py-2 text-sm font-medium rounded-l-md border ${
+              className={`px-4 py-2 text-sm font-medium rounded-l-md border transition-theme ${
                 metric === 'karma'
-                  ? 'bg-blue-600 text-white border-blue-600'
-                  : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                  ? 'bg-accent-primary text-white border-accent-primary'
+                  : 'bg-secondary text-secondary border-default hover:bg-tertiary'
               }`}
               onClick={() => setMetric('karma')}
             >
@@ -50,10 +50,10 @@ export default function CombinedChartContainer({
             </button>
             <button
               type="button"
-              className={`px-4 py-2 text-sm font-medium rounded-r-md border-l-0 border ${
+              className={`px-4 py-2 text-sm font-medium rounded-r-md border-l-0 border transition-theme ${
                 metric === 'posts'
-                  ? 'bg-blue-600 text-white border-blue-600'
-                  : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                  ? 'bg-accent-primary text-white border-accent-primary'
+                  : 'bg-secondary text-secondary border-default hover:bg-tertiary'
               }`}
               onClick={() => setMetric('posts')}
             >
@@ -74,7 +74,7 @@ export default function CombinedChartContainer({
         showTitle={false}
       />
 
-      <div className="mt-4 text-sm text-gray-500 flex flex-col sm:flex-row justify-between gap-2">
+      <div className="mt-4 text-sm text-muted flex flex-col sm:flex-row justify-between gap-2">
         <div className="flex flex-wrap gap-4">
           <span>
             {userCount} user{userCount !== 1 ? 's' : ''} tracked
@@ -104,8 +104,8 @@ export default function CombinedChartContainer({
 
       {/* Legend/User List */}
       {userCount > 1 && (
-        <div className="mt-4 p-4 bg-gray-50 rounded-md">
-          <h4 className="text-sm font-medium text-gray-700 mb-2">Tracked Users:</h4>
+        <div className="mt-4 p-4 bg-tertiary rounded-md">
+          <h4 className="text-sm font-medium text-secondary mb-2">Tracked Users:</h4>
           <div className="flex flex-wrap gap-2">
             {Object.keys(data).map((username, index) => {
               const colorIndex = index % 8; // Match the color palette in CombinedChart
@@ -123,7 +123,7 @@ export default function CombinedChartContainer({
               return (
                 <span
                   key={username}
-                  className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-white border-2 ${colors[colorIndex]}`}
+                  className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-primary border-2 ${colors[colorIndex]}`}
                 >
                   <span className="w-2 h-2 rounded-full mr-2 bg-current"></span>
                   u/{username}

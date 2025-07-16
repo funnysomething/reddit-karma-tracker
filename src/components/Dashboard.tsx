@@ -4,6 +4,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import UserManagement from './UserManagement';
 import ChartContainer from './ChartContainer';
 import CombinedChartContainer from './CombinedChartContainer';
+import ThemeToggle from './ThemeToggle';
+import { BentoGrid, BentoCard, BentoCardHeader, BentoCardContent } from './BentoGrid';
 import { TrackedUser, HistoryData, ApiResponse } from '../lib/types';
 
 export default function Dashboard() {
@@ -95,42 +97,63 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-primary py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Reddit Karma Tracker
-          </h1>
-          <p className="text-lg text-gray-600">
-            Track Reddit user karma and post count over time
-          </p>
-        </div>
+        <BentoCard size="xl" className="mb-8" priority="high">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <h1 className="text-3xl font-bold text-primary mb-2">
+                Reddit Karma Tracker
+              </h1>
+              <p className="text-lg text-secondary">
+                Track Reddit user karma and post count over time
+              </p>
+              <div className="flex items-center gap-4 mt-4 text-sm text-muted">
+                <span>👥 {trackedUsers.length} users tracked</span>
+                <span>📊 Data collected daily at 6:00 AM UTC</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <ThemeToggle size="md" showLabel />
+            </div>
+          </div>
+        </BentoCard>
 
-        {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* User Management Panel */}
-          <div className="lg:col-span-1">
-            <UserManagement
-              onUserAdded={handleUserAdded}
-              onUserRemoved={handleUserRemoved}
+        {/* Main Bento Grid */}
+        <BentoGrid gap="gap-6">
+          {/* User Management Card */}
+          <BentoCard size="md" priority="high">
+            <BentoCardHeader 
+              title="Manage Users" 
+              subtitle="Add and remove tracked Reddit users"
             />
-            
-            {/* User Selection */}
-            {trackedUsers.length > 0 && (
-              <div className="mt-6 bg-white rounded-lg shadow-md p-6">
-                <h3 className="text-lg font-medium text-gray-700 mb-3">
-                  Select User to View Chart
-                </h3>
+            <BentoCardContent>
+              <UserManagement
+                onUserAdded={handleUserAdded}
+                onUserRemoved={handleUserRemoved}
+                className="!bg-transparent !shadow-none !p-0"
+              />
+            </BentoCardContent>
+          </BentoCard>
+
+          {/* User Selection Card */}
+          {trackedUsers.length > 0 && (
+            <BentoCard size="sm" priority="medium">
+              <BentoCardHeader 
+                title="Select User" 
+                subtitle="Choose a user to view their chart"
+              />
+              <BentoCardContent>
                 <div className="space-y-2">
                   {trackedUsers.map((user) => (
                     <button
                       key={user.username}
                       onClick={() => setSelectedUser(user.username)}
-                      className={`w-full text-left p-3 rounded-md transition-colors ${
+                      className={`w-full text-left p-3 rounded-md transition-theme ${
                         selectedUser === user.username
-                          ? 'bg-blue-100 border-2 border-blue-500 text-blue-900'
-                          : 'bg-gray-50 hover:bg-gray-100 border-2 border-transparent text-gray-700'
+                          ? 'bg-accent-primary/10 border-2 border-accent-primary text-accent-primary'
+                          : 'bg-tertiary hover:bg-accent border-2 border-transparent text-secondary'
                       }`}
                     >
                       <div className="flex items-center">
@@ -148,123 +171,119 @@ export default function Dashboard() {
                 {selectedUser && (
                   <button
                     onClick={() => setSelectedUser(null)}
-                    className="mt-3 text-sm text-gray-500 hover:text-gray-700 underline"
+                    className="mt-3 text-sm text-muted hover:text-secondary underline transition-theme"
                   >
                     Clear selection
                   </button>
                 )}
-              </div>
-            )}
-          </div>
+              </BentoCardContent>
+            </BentoCard>
+          )}
 
-          {/* Chart Panel */}
-          <div className="lg:col-span-2">
-            {/* View Mode Toggle */}
-            {trackedUsers.length > 0 && (
-              <div className="mb-6 bg-white rounded-lg shadow-md p-4">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                  <h3 className="text-lg font-medium text-gray-700">
-                    Chart View
-                  </h3>
-                  <div className="inline-flex rounded-md shadow-sm">
-                    <button
-                      type="button"
-                      className={`px-4 py-2 text-sm font-medium rounded-l-md border ${
-                        viewMode === 'individual'
-                          ? 'bg-blue-600 text-white border-blue-600'
-                          : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                      }`}
-                      onClick={() => setViewMode('individual')}
-                    >
-                      Individual
-                    </button>
-                    <button
-                      type="button"
-                      className={`px-4 py-2 text-sm font-medium rounded-r-md border-l-0 border ${
-                        viewMode === 'combined'
-                          ? 'bg-blue-600 text-white border-blue-600'
-                          : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                      } ${trackedUsers.length < 2 ? 'opacity-50 cursor-not-allowed' : ''}`}
-                      onClick={() => trackedUsers.length >= 2 && setViewMode('combined')}
-                      disabled={trackedUsers.length < 2}
-                      title={trackedUsers.length < 2 ? 'Add at least 2 users to enable comparison view' : 'Compare all tracked users'}
-                    >
-                      Combined
-                    </button>
-                  </div>
+          {/* View Mode Toggle Card */}
+          {trackedUsers.length > 0 && (
+            <BentoCard size="sm" priority="medium">
+              <BentoCardHeader 
+                title="Chart View" 
+                subtitle="Switch between individual and combined views"
+              />
+              <BentoCardContent>
+                <div className="inline-flex rounded-md shadow-sm w-full">
+                  <button
+                    type="button"
+                    className={`flex-1 px-4 py-2 text-sm font-medium rounded-l-md border transition-theme ${
+                      viewMode === 'individual'
+                        ? 'bg-accent-primary text-white border-accent-primary'
+                        : 'bg-secondary text-secondary border-default hover:bg-tertiary'
+                    }`}
+                    onClick={() => setViewMode('individual')}
+                  >
+                    Individual
+                  </button>
+                  <button
+                    type="button"
+                    className={`flex-1 px-4 py-2 text-sm font-medium rounded-r-md border-l-0 border transition-theme ${
+                      viewMode === 'combined'
+                        ? 'bg-accent-primary text-white border-accent-primary'
+                        : 'bg-secondary text-secondary border-default hover:bg-tertiary'
+                    } ${trackedUsers.length < 2 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    onClick={() => trackedUsers.length >= 2 && setViewMode('combined')}
+                    disabled={trackedUsers.length < 2}
+                    title={trackedUsers.length < 2 ? 'Add at least 2 users to enable comparison view' : 'Compare all tracked users'}
+                  >
+                    Combined
+                  </button>
                 </div>
                 {trackedUsers.length < 2 && (
-                  <p className="text-xs text-gray-500 mt-2">
+                  <p className="text-xs text-muted mt-2">
                     Add at least 2 users to enable combined comparison view
                   </p>
                 )}
-              </div>
-            )}
+              </BentoCardContent>
+            </BentoCard>
+          )}
 
-            {/* Chart Content */}
-            {viewMode === 'individual' ? (
-              // Individual Chart View
-              selectedUser ? (
-                <ChartContainer
-                  data={userHistory}
-                  username={selectedUser}
-                  height={400}
-                />
-              ) : (
-                <div className="bg-white rounded-lg shadow-md p-12 text-center">
-                  <svg className="mx-auto h-16 w-16 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                  </svg>
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">
-                    {trackedUsers.length === 0 ? 'No Users Tracked' : 'No User Selected'}
-                  </h3>
-                  <p className="text-gray-500 mb-4">
-                    {trackedUsers.length === 0 
-                      ? 'Add a Reddit user to start tracking their karma and post count.'
-                      : 'Select a user from the left panel to view their individual karma history chart.'
-                    }
-                  </p>
-                  {trackedUsers.length === 0 && (
-                    <p className="text-sm text-gray-400">
-                      Charts will show historical data once users are added and data is collected.
+          {/* Chart Display Card */}
+          <BentoCard size="lg" priority="high">
+            <BentoCardContent>
+              {viewMode === 'individual' ? (
+                // Individual Chart View
+                selectedUser ? (
+                  <ChartContainer
+                    data={userHistory}
+                    username={selectedUser}
+                    height={400}
+                    className="!bg-transparent !shadow-none !p-0"
+                  />
+                ) : (
+                  <div className="p-12 text-center">
+                    <svg className="mx-auto h-16 w-16 text-muted mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                    <h3 className="text-lg font-medium text-primary mb-2">
+                      {trackedUsers.length === 0 ? 'No Users Tracked' : 'No User Selected'}
+                    </h3>
+                    <p className="text-secondary mb-4">
+                      {trackedUsers.length === 0 
+                        ? 'Add a Reddit user to start tracking their karma and post count.'
+                        : 'Select a user from the left panel to view their individual karma history chart.'
+                      }
                     </p>
-                  )}
-                </div>
-              )
-            ) : (
-              // Combined Chart View
-              trackedUsers.length >= 2 ? (
-                <CombinedChartContainer
-                  data={allUsersHistory}
-                  height={400}
-                />
+                    {trackedUsers.length === 0 && (
+                      <p className="text-sm text-muted">
+                        Charts will show historical data once users are added and data is collected.
+                      </p>
+                    )}
+                  </div>
+                )
               ) : (
-                <div className="bg-white rounded-lg shadow-md p-12 text-center">
-                  <svg className="mx-auto h-16 w-16 text-blue-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                  </svg>
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">
-                    Combined View Requires Multiple Users
-                  </h3>
-                  <p className="text-gray-500 mb-4">
-                    Add at least 2 users to enable the combined comparison chart.
-                  </p>
-                  <p className="text-sm text-gray-400">
-                    The combined view allows you to compare karma and post count trends across multiple users.
-                  </p>
-                </div>
-              )
-            )}
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="mt-12 text-center text-sm text-gray-500">
-          <p>
-            Data is automatically collected daily at 6:00 AM UTC. 
-            Charts will populate as historical data is gathered.
-          </p>
-        </div>
+                // Combined Chart View
+                trackedUsers.length >= 2 ? (
+                  <CombinedChartContainer
+                    data={allUsersHistory}
+                    height={400}
+                    className="!bg-transparent !shadow-none !p-0"
+                  />
+                ) : (
+                  <div className="p-12 text-center">
+                    <svg className="mx-auto h-16 w-16 text-accent-secondary mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <h3 className="text-lg font-medium text-primary mb-2">
+                      Combined View Requires Multiple Users
+                    </h3>
+                    <p className="text-secondary mb-4">
+                      Add at least 2 users to enable the combined comparison chart.
+                    </p>
+                    <p className="text-sm text-muted">
+                      The combined view allows you to compare karma and post count trends across multiple users.
+                    </p>
+                  </div>
+                )
+              )}
+            </BentoCardContent>
+          </BentoCard>
+        </BentoGrid>
       </div>
     </div>
   );

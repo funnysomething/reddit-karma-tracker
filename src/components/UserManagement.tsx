@@ -143,8 +143,8 @@ export default function UserManagement({
   };
 
   return (
-    <div className={`bg-white rounded-lg shadow-md p-6 ${className}`}>
-      <h2 className="text-xl font-semibold text-gray-800 mb-4">
+    <div className={`bg-secondary rounded-lg shadow-theme-md p-6 transition-theme ${className}`}>
+      <h2 className="text-xl font-semibold text-primary mb-4">
         Manage Tracked Users
       </h2>
 
@@ -161,19 +161,19 @@ export default function UserManagement({
               value={username}
               onChange={(e) => handleUsernameChange(e.target.value)}
               placeholder="Enter Reddit username (e.g., spez)"
-              className={`w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                validationError ? 'border-red-300' : 'border-gray-300'
+              className={`w-full px-4 py-2 border rounded-md bg-primary text-primary placeholder:text-muted focus:ring-2 focus:ring-accent-primary focus:border-accent-primary transition-theme ${
+                validationError ? 'border-accent-destructive' : 'border-default'
               }`}
               disabled={isLoading}
             />
             {validationError && (
-              <p className="mt-1 text-sm text-red-600">{validationError}</p>
+              <p className="mt-1 text-sm text-accent-destructive">{validationError}</p>
             )}
           </div>
           <button
             type="submit"
             disabled={isLoading || !!validationError || !username.trim()}
-            className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[120px]"
+            className="px-6 py-2 bg-accent-primary text-white rounded-md hover:bg-accent-primary/90 focus:ring-2 focus:ring-accent-primary focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[120px] transition-theme"
           >
             {isLoading ? (
               <>
@@ -189,11 +189,11 @@ export default function UserManagement({
 
       {/* Error Display */}
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
-          <p className="text-sm text-red-700">{error}</p>
+        <div className="mb-4 p-3 bg-accent-destructive/10 border border-accent-destructive/20 rounded-md">
+          <p className="text-sm text-accent-destructive">{error}</p>
           <button
             onClick={() => setError(null)}
-            className="mt-2 text-xs text-red-600 hover:text-red-800 underline"
+            className="mt-2 text-xs text-accent-destructive hover:text-accent-destructive/80 underline transition-theme"
           >
             Dismiss
           </button>
@@ -202,29 +202,29 @@ export default function UserManagement({
 
       {/* Tracked Users List */}
       <div>
-        <h3 className="text-lg font-medium text-gray-700 mb-3">
+        <h3 className="text-lg font-medium text-secondary mb-3">
           Currently Tracked Users ({trackedUsers.length})
         </h3>
 
         {isLoadingUsers ? (
           <div className="flex items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <span className="ml-3 text-gray-600">Loading users...</span>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent-primary"></div>
+            <span className="ml-3 text-secondary">Loading users...</span>
           </div>
         ) : trackedUsers.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
-            <svg className="mx-auto h-12 w-12 text-gray-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="text-center py-8 text-muted">
+            <svg className="mx-auto h-12 w-12 text-muted mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
             </svg>
             <p className="text-sm">No users are currently being tracked.</p>
-            <p className="text-xs text-gray-400 mt-1">Add a Reddit username above to get started.</p>
+            <p className="text-xs text-muted mt-1">Add a Reddit username above to get started.</p>
           </div>
         ) : (
           <div className="space-y-2">
             {trackedUsers.map((user) => (
               <div
                 key={user.username}
-                className="flex items-center justify-between p-3 bg-gray-50 rounded-md hover:bg-gray-100 transition-colors"
+                className="flex items-center justify-between p-3 bg-tertiary rounded-md hover:bg-accent transition-theme"
               >
                 <div className="flex items-center">
                   <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center mr-3">
@@ -233,8 +233,8 @@ export default function UserManagement({
                     </span>
                   </div>
                   <div>
-                    <p className="font-medium text-gray-900">u/{user.username}</p>
-                    <p className="text-xs text-gray-500">
+                    <p className="font-medium text-primary">u/{user.username}</p>
+                    <p className="text-xs text-muted">
                       Added {new Date(user.created_at).toLocaleDateString()}
                       {user.updated_at && user.updated_at !== user.created_at && (
                         <span> • Last updated {new Date(user.updated_at).toLocaleDateString()}</span>
@@ -244,7 +244,7 @@ export default function UserManagement({
                 </div>
                 <button
                   onClick={() => handleRemoveUser(user.username)}
-                  className="p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-md transition-colors"
+                  className="p-2 text-accent-destructive hover:text-accent-destructive/80 hover:bg-accent-destructive/10 rounded-md transition-theme"
                   title={`Remove ${user.username} from tracking`}
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -258,9 +258,9 @@ export default function UserManagement({
       </div>
 
       {/* Usage Instructions */}
-      <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-md">
-        <h4 className="text-sm font-medium text-blue-800 mb-2">How it works:</h4>
-        <ul className="text-xs text-blue-700 space-y-1">
+      <div className="mt-6 p-4 bg-accent-primary/10 border border-accent-primary/20 rounded-md">
+        <h4 className="text-sm font-medium text-accent-primary mb-2">How it works:</h4>
+        <ul className="text-xs text-accent-primary/80 space-y-1">
           <li>• Add Reddit usernames to track their karma and post count over time</li>
           <li>• Data is automatically collected daily at 6 AM UTC</li>
           <li>• View historical charts and trends for each tracked user</li>

@@ -15,6 +15,7 @@ import {
   ChartOptions
 } from 'chart.js';
 import 'chartjs-adapter-date-fns';
+import { useTheme } from '../contexts/ThemeContext';
 import { HistoryData } from '../lib/types';
 
 // Register ChartJS components
@@ -60,6 +61,7 @@ export default function CombinedChart({
   timeRange = 'all',
   metric = 'karma'
 }: CombinedChartProps) {
+  const { theme } = useTheme();
   const [chartData, setChartData] = useState<{
     labels: Date[];
     datasets: Array<{
@@ -186,7 +188,8 @@ export default function CombinedChart({
         position: 'top' as const,
         labels: {
           usePointStyle: true,
-          padding: 20
+          padding: 20,
+          color: theme === 'dark' ? '#e2e8f0' : '#334155',
         }
       },
       title: {
@@ -194,11 +197,17 @@ export default function CombinedChart({
         text: `${metric === 'karma' ? 'Karma' : 'Post Count'} Comparison`,
         font: {
           size: 16
-        }
+        },
+        color: theme === 'dark' ? '#f8fafc' : '#0f172a',
       },
       tooltip: {
         mode: 'index',
         intersect: false,
+        backgroundColor: theme === 'dark' ? '#1e293b' : '#ffffff',
+        titleColor: theme === 'dark' ? '#f8fafc' : '#0f172a',
+        bodyColor: theme === 'dark' ? '#e2e8f0' : '#334155',
+        borderColor: theme === 'dark' ? '#334155' : '#e2e8f0',
+        borderWidth: 1,
         callbacks: {
           title: (context) => {
             const date = new Date(context[0].parsed.x);
@@ -226,19 +235,31 @@ export default function CombinedChart({
         },
         title: {
           display: true,
-          text: 'Date'
+          text: 'Date',
+          color: theme === 'dark' ? '#e2e8f0' : '#334155',
+        },
+        ticks: {
+          color: theme === 'dark' ? '#94a3b8' : '#64748b',
+        },
+        grid: {
+          color: theme === 'dark' ? '#334155' : '#f1f5f9',
         }
       },
       y: {
         beginAtZero: true,
         title: {
           display: true,
-          text: metric === 'karma' ? 'Karma' : 'Post Count'
+          text: metric === 'karma' ? 'Karma' : 'Post Count',
+          color: theme === 'dark' ? '#e2e8f0' : '#334155',
         },
         ticks: {
+          color: theme === 'dark' ? '#94a3b8' : '#64748b',
           callback: function(value) {
             return typeof value === 'number' ? value.toLocaleString() : value;
           }
+        },
+        grid: {
+          color: theme === 'dark' ? '#334155' : '#f1f5f9',
         }
       }
     },
@@ -253,10 +274,10 @@ export default function CombinedChart({
 
   if (isLoading) {
     return (
-      <div className={`flex items-center justify-center h-${height} ${className}`}>
+      <div className={`flex items-center justify-center ${className}`} style={{ height: `${height}px` }}>
         <div className="flex flex-col items-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-          <p className="mt-3 text-gray-600">Loading comparison chart...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent-primary"></div>
+          <p className="mt-3 text-secondary">Loading comparison chart...</p>
         </div>
       </div>
     );
@@ -264,13 +285,13 @@ export default function CombinedChart({
 
   if (userCount === 0) {
     return (
-      <div className={`flex items-center justify-center h-${height} bg-gray-50 rounded-lg ${className}`}>
+      <div className={`flex items-center justify-center bg-tertiary rounded-lg ${className}`} style={{ height: `${height}px` }}>
         <div className="text-center p-6">
-          <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="mx-auto h-12 w-12 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
           </svg>
-          <h3 className="mt-2 text-sm font-medium text-gray-900">No users to compare</h3>
-          <p className="mt-1 text-sm text-gray-500">
+          <h3 className="mt-2 text-sm font-medium text-primary">No users to compare</h3>
+          <p className="mt-1 text-sm text-secondary">
             Add multiple users to see comparison charts.
           </p>
         </div>
@@ -280,16 +301,16 @@ export default function CombinedChart({
 
   if (userCount === 1) {
     return (
-      <div className={`flex items-center justify-center h-${height} bg-blue-50 rounded-lg ${className}`}>
+      <div className={`flex items-center justify-center bg-accent-primary/10 rounded-lg ${className}`} style={{ height: `${height}px` }}>
         <div className="text-center p-6">
-          <svg className="mx-auto h-12 w-12 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="mx-auto h-12 w-12 text-accent-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
           </svg>
-          <h3 className="mt-2 text-sm font-medium text-blue-900">Single user tracked</h3>
-          <p className="mt-1 text-sm text-blue-700">
+          <h3 className="mt-2 text-sm font-medium text-accent-primary">Single user tracked</h3>
+          <p className="mt-1 text-sm text-accent-primary/80">
             Add more users to enable comparison view.
           </p>
-          <p className="mt-1 text-xs text-blue-600">
+          <p className="mt-1 text-xs text-accent-primary/60">
             Individual charts are available for single users.
           </p>
         </div>

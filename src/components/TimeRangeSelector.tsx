@@ -27,17 +27,17 @@ export default function TimeRangeSelector({
         <button
           key={option.value}
           type="button"
-          className={`px-4 py-2 text-sm font-medium ${
+          className={`px-4 py-2 text-sm font-medium transition-theme ${
             value === option.value
-              ? 'bg-blue-600 text-white'
-              : 'bg-white text-gray-700 hover:bg-gray-50'
+              ? 'bg-accent-primary text-white'
+              : 'bg-secondary text-secondary hover:bg-tertiary'
           } ${
             option.value === '1d'
               ? 'rounded-l-md'
               : option.value === 'all'
               ? 'rounded-r-md'
               : ''
-          } border border-gray-300`}
+          } border border-default`}
           onClick={() => onChange(option.value as '1d' | '7d' | '30d' | '90d' | 'all')}
         >
           {option.label}

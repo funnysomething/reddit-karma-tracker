@@ -9,7 +9,10 @@
     "lint": "next lint",
     "test": "vitest run --environment=jsdom",
     "test:watch": "vitest --environment=jsdom",
-    "test:ui": "vitest --ui --environment=jsdom"
+    "test:ui": "vitest --ui --environment=jsdom",
+    "test:node": "vitest run --environment=node reddit-api-node",
+    "test:reddit": "npx tsx scripts/test-reddit-api.ts",
+    "test:reddit-multi": "npx tsx scripts/test-multiple-users.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.51.0",

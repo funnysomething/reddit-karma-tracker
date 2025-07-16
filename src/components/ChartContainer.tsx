@@ -21,9 +21,9 @@ export default function ChartContainer({
   const [timeRange, setTimeRange] = useState<'1d' | '7d' | '30d' | '90d' | 'all'>('all');
 
   return (
-    <div className={`bg-white rounded-lg shadow-md p-6 ${className}`}>
+    <div className={`bg-secondary rounded-lg shadow-theme-md p-6 transition-theme ${className}`}>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
-        <h2 className="text-xl font-semibold text-gray-800 mb-2 sm:mb-0">
+        <h2 className="text-xl font-semibold text-primary mb-2 sm:mb-0">
           {username ? `Karma History for u/${username}` : 'Karma History'}
         </h2>
         <TimeRangeSelector value={timeRange} onChange={setTimeRange} />
@@ -35,7 +35,7 @@ export default function ChartContainer({
         timeRange={timeRange}
         showTitle={false}
       />
-      <div className="mt-4 text-sm text-gray-500 flex justify-between">
+      <div className="mt-4 text-sm text-muted flex justify-between">
         <div>
           {data.length > 0 && (
             <span>
