@@ -3,21 +3,21 @@
  * Run with: npx tsx scripts/test-add-user.ts [BASE_URL]
  */
 
-const BASE_URL = process.argv[2] || 'http://localhost:3000';
+const ADD_USER_BASE_URL = process.argv[2] || 'http://localhost:3000';
 
 async function testAddUser() {
-  console.log(`🧪 Testing Add User API at: ${BASE_URL}\n`);
+  console.log(`🧪 Testing Add User API at: ${ADD_USER_BASE_URL}\n`);
 
   const testUser = 'funnysomething';
   
   try {
     console.log(`📤 Attempting to add user: ${testUser}`);
-    console.log(`   URL: ${BASE_URL}/api/users`);
+    console.log(`   URL: ${ADD_USER_BASE_URL}/api/users`);
     console.log(`   Method: POST`);
     console.log(`   Body: { "username": "${testUser}" }`);
     console.log('');
 
-    const response = await fetch(`${BASE_URL}/api/users`, {
+    const response = await fetch(`${ADD_USER_BASE_URL}/api/users`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -89,7 +89,7 @@ async function testGetUsers() {
   console.log(`\n🔍 Testing GET /api/users to see if any API routes work...\n`);
   
   try {
-    const response = await fetch(`${BASE_URL}/api/users`);
+    const response = await fetch(`${ADD_USER_BASE_URL}/api/users`);
     const responseText = await response.text();
     
     console.log(`📊 GET Response Status: ${response.status} ${response.statusText}`);
@@ -112,12 +112,12 @@ async function testGetUsers() {
 }
 
 // Run both tests
-async function runTests() {
+async function runAddUserTests() {
   await testGetUsers();
   await testAddUser();
 }
 
-runTests().catch(error => {
+runAddUserTests().catch(error => {
   console.error('❌ Test failed:', error);
   process.exit(1);
 });

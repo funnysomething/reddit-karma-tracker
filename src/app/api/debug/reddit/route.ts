@@ -12,7 +12,6 @@ export async function GET() {
         'User-Agent': userAgent,
         'Accept': 'application/json',
       },
-      timeout: 10000,
     });
 
     console.log('Reddit API Response Status:', response.status);

@@ -3,15 +3,15 @@
  * Run with: npx tsx scripts/test-debug.ts [BASE_URL]
  */
 
-const BASE_URL = process.argv[2] || 'http://localhost:3000';
+const DEBUG_BASE_URL = process.argv[2] || 'http://localhost:3000';
 
 async function testDebugEndpoints() {
-  console.log(`🔍 Testing Debug Endpoints at: ${BASE_URL}\n`);
+  console.log(`🔍 Testing Debug Endpoints at: ${DEBUG_BASE_URL}\n`);
 
   // Test environment variables
   console.log('1️⃣ Testing Environment Variables...');
   try {
-    const response = await fetch(`${BASE_URL}/api/debug/env`);
+    const response = await fetch(`${DEBUG_BASE_URL}/api/debug/env`);
     const data = await response.json();
     
     console.log(`   Status: ${response.status}`);
@@ -30,7 +30,7 @@ async function testDebugEndpoints() {
   // Test Reddit API directly
   console.log('2️⃣ Testing Reddit API Direct Call...');
   try {
-    const response = await fetch(`${BASE_URL}/api/debug/reddit`);
+    const response = await fetch(`${DEBUG_BASE_URL}/api/debug/reddit`);
     const data = await response.json();
     
     console.log(`   Status: ${response.status}`);
@@ -58,7 +58,7 @@ async function testDebugEndpoints() {
   // Test the actual user addition with a known good user
   console.log('3️⃣ Testing User Addition (spez)...');
   try {
-    const response = await fetch(`${BASE_URL}/api/users`, {
+    const response = await fetch(`${DEBUG_BASE_URL}/api/users`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -90,7 +90,12 @@ async function testDebugEndpoints() {
   console.log('If user addition fails, check both environment and Reddit API');
 }
 
-testDebugEndpoints().catch(error => {
+// Run the debug tests
+async function runDebugTests() {
+  await testDebugEndpoints();
+}
+
+runDebugTests().catch(error => {
   console.error('❌ Debug test failed:', error);
   process.exit(1);
 });
