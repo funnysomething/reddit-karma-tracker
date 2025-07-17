@@ -1,0 +1,15 @@
+# Vercel ignore file
+node_modules
+.next
+.env.local
+.env.*.local
+*.log
+.DS_Store
+Thumbs.db
+
+# Test files
+**/__tests__/**
+**/*.test.ts
+**/*.test.tsx
+scripts/test-*.ts
+scripts/setup-*.ts
