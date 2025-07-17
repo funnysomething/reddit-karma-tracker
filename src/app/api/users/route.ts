@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { TrackedUsersRepository, validateUsername } from '../../../lib/database';
 import { validateRedditUsername } from '../../../lib/reddit-api';
+import { validateRedditUserWithProxy } from '../../../lib/reddit-proxy';
 import { ApiResponse, TrackedUser } from '../../../lib/types';
 
 // GET /api/users - Retrieve list of tracked users
@@ -71,9 +72,26 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
       );
     }
 
-    // Validate that the Reddit user actually exists
+    // Validate that the Reddit user actually exists with fallback
     try {
-      const redditUserExists = await validateRedditUsername(username);
+      let redditUserExists = false;
+      
+      // Try main Reddit API first
+      try {
+        redditUserExists = await validateRedditUsername(username);
+      } catch (error) {
+        console.error('Primary Reddit validation failed, trying proxy:', error);
+        
+        // Try proxy as fallback
+        try {
+          redditUserExists = await validateRedditUserWithProxy(username);
+          console.log(`Proxy validation successful for ${username}`);
+        } catch (proxyError) {
+          console.error('Proxy validation also failed:', proxyError);
+          throw error; // Throw original error
+        }
+      }
+      
       if (!redditUserExists) {
         return NextResponse.json(
           { 
