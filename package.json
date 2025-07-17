@@ -12,7 +12,8 @@
     "test:ui": "vitest --ui --environment=jsdom",
     "test:node": "vitest run --environment=node reddit-api-node",
     "test:reddit": "npx tsx scripts/test-reddit-api.ts",
-    "test:reddit-multi": "npx tsx scripts/test-multiple-users.ts"
+    "test:reddit-multi": "npx tsx scripts/test-multiple-users.ts",
+    "setup:local": "npx tsx scripts/setup-local.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.51.0",

@@ -1,7 +1,12 @@
 // Environment variable validation
 export function validateEnvVars() {
-  // Skip validation in test environment
-  if (process.env.NODE_ENV === 'test' || process.env.VITEST === 'true') {
+  // Skip validation in test environment or during build
+  if (
+    process.env.NODE_ENV === 'test' || 
+    process.env.VITEST === 'true' ||
+    process.env.NEXT_PHASE === 'phase-production-build' ||
+    typeof window !== 'undefined' // Skip on client side
+  ) {
     return;
   }
 

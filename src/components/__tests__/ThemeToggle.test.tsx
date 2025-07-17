@@ -25,9 +25,9 @@ const localStorageMock = {
   removeItem: jest.fn(),
   clear: jest.fn(),
 };
-global.localStorage = localStorageMock as any;
+global.localStorage = localStorageMock as Storage;
 
-const ThemeToggleWithProvider = (props: any) => (
+const ThemeToggleWithProvider = (props: React.ComponentProps<typeof ThemeToggle>) => (
   <ThemeProvider>
     <ThemeToggle {...props} />
   </ThemeProvider>

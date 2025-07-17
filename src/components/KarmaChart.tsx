@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -64,22 +64,7 @@ export default function KarmaChart({
   } | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  useEffect(() => {
-    if (!data || data.length === 0) {
-      setIsLoading(false);
-      return;
-    }
-
-    // Filter data based on time range
-    const filteredData = filterDataByTimeRange(data, timeRange);
-    
-    // Process data for chart
-    const processedData = processChartData(filteredData);
-    setChartData(processedData);
-    setIsLoading(false);
-  }, [data, timeRange]);
-
-  const filterDataByTimeRange = (data: HistoryData[], range: string): HistoryData[] => {
+  const filterDataByTimeRange = useCallback((data: HistoryData[], range: string): HistoryData[] => {
     if (range === 'all') return data;
     
     const now = new Date();
@@ -95,9 +80,9 @@ export default function KarmaChart({
     
     const cutoffDate = new Date(now.setDate(now.getDate() - daysToSubtract));
     return data.filter(item => new Date(item.collected_at) >= cutoffDate);
-  };
+  }, []);
 
-  const processChartData = (data: HistoryData[]) => {
+  const processChartData = useCallback((data: HistoryData[]) => {
     // Sort data by timestamp
     const sortedData = [...data].sort(
       (a, b) => new Date(a.collected_at).getTime() - new Date(b.collected_at).getTime()
@@ -132,7 +117,22 @@ export default function KarmaChart({
         }
       ]
     };
-  };
+  }, [theme]);
+
+  useEffect(() => {
+    if (!data || data.length === 0) {
+      setIsLoading(false);
+      return;
+    }
+
+    // Filter data based on time range
+    const filteredData = filterDataByTimeRange(data, timeRange);
+    
+    // Process data for chart
+    const processedData = processChartData(filteredData);
+    setChartData(processedData);
+    setIsLoading(false);
+  }, [data, timeRange, filterDataByTimeRange, processChartData]);
 
   const chartOptions: ChartOptions<'line'> = {
     responsive: true,
