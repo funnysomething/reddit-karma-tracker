@@ -13,7 +13,15 @@
     "test:node": "vitest run --environment=node reddit-api-node",
     "test:reddit": "npx tsx scripts/test-reddit-api.ts",
     "test:reddit-multi": "npx tsx scripts/test-multiple-users.ts",
-    "setup:local": "npx tsx scripts/setup-local.ts"
+    "setup:local": "npx tsx scripts/setup-local.ts",
+    "test:api": "npx tsx scripts/test-api-endpoints.ts",
+    "test:api:local": "npx tsx scripts/test-api-endpoints.ts http://localhost:3000",
+    "test:api:vercel": "npx tsx scripts/test-api-endpoints.ts https://reddit-karma-tracker.vercel.app",
+    "test:add-user": "npx tsx scripts/test-add-user.ts",
+    "test:add-user:local": "npx tsx scripts/test-add-user.ts http://localhost:3000",
+    "test:add-user:vercel": "npx tsx scripts/test-add-user.ts https://reddit-karma-tracker.vercel.app",
+    "test:debug": "npx tsx scripts/test-debug.ts",
+    "test:debug:vercel": "npx tsx scripts/test-debug.ts https://reddit-karma-tracker.vercel.app"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.51.0",
