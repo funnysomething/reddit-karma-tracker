@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { TrackedUsersRepository, validateUsername } from '../../../lib/database';
-import { validateRedditUsername } from '../../../lib/reddit-api';
-import { validateRedditUserWithProxy } from '../../../lib/reddit-proxy';
+import { validateRedditUsernameOAuth } from '../../../lib/reddit-oauth';
 import { ApiResponse, TrackedUser } from '../../../lib/types';
 
 // GET /api/users - Retrieve list of tracked users
@@ -72,25 +71,10 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
       );
     }
 
-    // Validate that the Reddit user actually exists with fallback
+    // Validate that the Reddit user actually exists using OAuth
     try {
-      let redditUserExists = false;
-      
-      // Try main Reddit API first
-      try {
-        redditUserExists = await validateRedditUsername(username);
-      } catch (error) {
-        console.error('Primary Reddit validation failed, trying proxy:', error);
-        
-        // Try proxy as fallback
-        try {
-          redditUserExists = await validateRedditUserWithProxy(username);
-          console.log(`Proxy validation successful for ${username}`);
-        } catch (proxyError) {
-          console.error('Proxy validation also failed:', proxyError);
-          throw error; // Throw original error
-        }
-      }
+      console.log(`Validating Reddit user via OAuth: ${username}`);
+      const redditUserExists = await validateRedditUsernameOAuth(username);
       
       if (!redditUserExists) {
         return NextResponse.json(
@@ -101,8 +85,22 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
           { status: 404 }
         );
       }
+      
+      console.log(`✅ Reddit user validation successful for: ${username}`);
     } catch (error) {
-      console.error('Error validating Reddit username:', error);
+      console.error('Error validating Reddit username via OAuth:', error);
+      
+      // Handle specific OAuth errors
+      if (error instanceof Error && error.message.includes('credentials')) {
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: 'Reddit API authentication failed. Please check server configuration.' 
+          },
+          { status: 500 }
+        );
+      }
+      
       return NextResponse.json(
         { 
           success: false, 

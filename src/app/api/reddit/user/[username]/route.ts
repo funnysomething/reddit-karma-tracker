@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { fetchRedditUserData } from '../../../../../lib/reddit-api';
-import { fetchRedditUserWithProxy } from '../../../../../lib/reddit-proxy';
+import { fetchRedditUserDataOAuth } from '../../../../../lib/reddit-oauth';
 import { UserHistoryRepository, validateUsername } from '../../../../../lib/database';
 import { ApiResponse, RedditUserData } from '../../../../../lib/types';
 
@@ -10,34 +9,13 @@ interface RouteParams {
   };
 }
 
-// Helper function to fetch Reddit user data with fallback
-async function fetchRedditUserWithFallback(username: string): Promise<RedditUserData> {
-  try {
-    // Try main Reddit API first
-    return await fetchRedditUserData(username);
-  } catch (error) {
-    console.error(`Primary Reddit API failed for ${username}:`, error);
-    
-    // Try proxy as fallback
-    try {
-      console.log(`Attempting proxy fallback for ${username}`);
-      const result = await fetchRedditUserWithProxy(username);
-      console.log(`Proxy fallback successful for ${username}`);
-      return result;
-    } catch (proxyError) {
-      console.error(`Proxy fallback also failed for ${username}:`, proxyError);
-      throw error; // Throw original error
-    }
-  }
-}
-
-// Helper function to handle Reddit API errors
-function handleRedditError(error: unknown, username: string): NextResponse<ApiResponse<RedditUserData>> {
+// Helper function to handle Reddit OAuth API errors
+function handleRedditOAuthError(error: unknown, username: string): NextResponse<ApiResponse<RedditUserData>> {
   console.error(`Error fetching Reddit data for ${username}:`, error);
   
   // Handle specific error cases
   if (error instanceof Error) {
-    if (error.message.includes('not found') || error.message.includes('unavailable')) {
+    if (error.message.includes('not found')) {
       return NextResponse.json(
         { 
           success: false, 
@@ -54,6 +32,16 @@ function handleRedditError(error: unknown, username: string): NextResponse<ApiRe
           error: 'Reddit API rate limit exceeded. Please try again later.' 
         },
         { status: 429 }
+      );
+    }
+
+    if (error.message.includes('OAuth') || error.message.includes('credentials')) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Reddit API authentication failed. Please check server configuration.' 
+        },
+        { status: 500 }
       );
     }
   }
@@ -97,12 +85,14 @@ export async function POST(
       );
     }
 
-    // Fetch current Reddit user data with fallback
+    // Fetch current Reddit user data using OAuth
     let redditUserData: RedditUserData;
     try {
-      redditUserData = await fetchRedditUserWithFallback(username);
+      console.log(`Fetching Reddit user data via OAuth for: ${username}`);
+      redditUserData = await fetchRedditUserDataOAuth(username);
+      console.log(`Successfully fetched data for ${username}:`, redditUserData);
     } catch (error) {
-      return handleRedditError(error, username);
+      return handleRedditOAuthError(error, username);
     }
 
     // Store the data in the database
@@ -169,12 +159,14 @@ export async function GET(
       );
     }
 
-    // Fetch current Reddit user data with fallback
+    // Fetch current Reddit user data using OAuth
     let redditUserData: RedditUserData;
     try {
-      redditUserData = await fetchRedditUserWithFallback(username);
+      console.log(`Fetching Reddit user data via OAuth for: ${username}`);
+      redditUserData = await fetchRedditUserDataOAuth(username);
+      console.log(`Successfully fetched data for ${username}:`, redditUserData);
     } catch (error) {
-      return handleRedditError(error, username);
+      return handleRedditOAuthError(error, username);
     }
 
     return NextResponse.json({

@@ -27,27 +27,23 @@ async function testDebugEndpoints() {
     console.log('');
   }
 
-  // Test Reddit API directly
-  console.log('2️⃣ Testing Reddit API Direct Call...');
+  // Test Reddit OAuth API
+  console.log('2️⃣ Testing Reddit OAuth API...');
   try {
-    const response = await fetch(`${DEBUG_BASE_URL}/api/debug/reddit`);
+    const response = await fetch(`${DEBUG_BASE_URL}/api/debug/oauth`);
     const data = await response.json();
     
     console.log(`   Status: ${response.status}`);
     console.log(`   Success: ${data.success}`);
-    console.log(`   User Agent: ${data.userAgent}`);
     
     if (data.success) {
-      console.log(`   ✅ Reddit API Working!`);
-      console.log(`   Reddit Response Status: ${data.redditResponse?.status}`);
-      console.log(`   Has Data: ${data.redditResponse?.hasData}`);
-      console.log(`   Username: ${data.redditResponse?.username}`);
-      console.log(`   Karma: ${data.redditResponse?.karma}`);
+      console.log(`   ✅ Reddit OAuth Working!`);
+      console.log(`   Test User: ${data.testResult?.username}`);
+      console.log(`   User Data:`, data.testResult?.data);
+      console.log(`   Token Status:`, data.tokenStatus);
     } else {
-      console.log(`   ❌ Reddit API Failed: ${data.error}`);
-      if (data.responseHeaders) {
-        console.log(`   Response Headers:`, data.responseHeaders);
-      }
+      console.log(`   ❌ Reddit OAuth Failed: ${data.error}`);
+      console.log(`   Config:`, data.config);
     }
     console.log('');
   } catch (error) {
