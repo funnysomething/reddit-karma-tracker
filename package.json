@@ -21,7 +21,9 @@
     "test:add-user:local": "npx tsx scripts/test-add-user.ts http://localhost:3000",
     "test:add-user:vercel": "npx tsx scripts/test-add-user.ts https://reddit-karma-tracker.vercel.app",
     "test:debug": "npx tsx scripts/test-debug.ts",
-    "test:debug:vercel": "npx tsx scripts/test-debug.ts https://reddit-karma-tracker.vercel.app"
+    "test:debug:vercel": "npx tsx scripts/test-debug.ts https://reddit-karma-tracker.vercel.app",
+    "test:cron": "npx tsx scripts/test-cron.ts",
+    "test:cron:vercel": "npx tsx scripts/test-cron.ts https://reddit-karma-tracker.vercel.app"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.51.0",
