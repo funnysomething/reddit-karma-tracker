@@ -170,7 +170,7 @@ export default function CombinedChart({
 
     // Add combined dataset (sum of all users)
     if (datasets.length > 1) {
-      const combinedData = sortedTimestamps.map((timestamp, idx) => {
+      const combinedData = sortedTimestamps.map((timestamp) => {
         let sum = 0;
         Object.values(userDataFiltered).forEach(userHistory => {
           const dataPoint = userHistory.find(
