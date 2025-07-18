@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import UserManagement from './UserManagement';
 import ChartContainer from './ChartContainer';
 import CombinedChartContainer from './CombinedChartContainer';
@@ -12,19 +12,98 @@ export default function Dashboard() {
   const [trackedUsers, setTrackedUsers] = useState<TrackedUser[]>([]);
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
   const [userHistory, setUserHistory] = useState<HistoryData[]>([]);
-  // const [allUsersHistory, setAllUsersHistory] = useState<Record<string, HistoryData[]>>({});
+  const [allUsersHistory, setAllUsersHistory] = useState<Record<string, HistoryData[]>>({});
   const [viewMode, setViewMode] = useState<'individual' | 'combined'>('individual');
-  // const [isLoadingHistory, setIsLoadingHistory] = useState(false);
-  // const [isLoadingUsers, setIsLoadingUsers] = useState(true);
+  const [isLoadingUsers, setIsLoadingUsers] = useState(true);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+  const [isLoadingAllHistory, setIsLoadingAllHistory] = useState(false);
 
-  useEffect(() => { loadTrackedUsers(); }, []);
-  const loadTrackedUsers = async () => { /* ...same as before... */ };
-  useEffect(() => { setUserHistory([]); }, [selectedUser]);
-  // const loadUserHistory = async (username: string) => { /* ...same as before... */ };
-  // const loadAllUsersHistory = useCallback(async () => { /* ...same as before... */ }, [trackedUsers]);
-  // useEffect(() => { if (viewMode === 'combined' && trackedUsers.length > 0) loadAllUsersHistory(); }, [viewMode, trackedUsers]);
-  const handleUserAdded = (user: TrackedUser) => { setTrackedUsers(prev => [...prev, user]); };
-  const handleUserRemoved = (username: string) => { setTrackedUsers(prev => prev.filter(user => user.username !== username)); if (selectedUser === username) setSelectedUser(null); };
+  // Load tracked users on mount
+  useEffect(() => {
+    const loadTrackedUsers = async () => {
+      setIsLoadingUsers(true);
+      try {
+        const res = await fetch('/api/users');
+        const data = await res.json();
+        if (data.success && Array.isArray(data.data)) {
+          setTrackedUsers(data.data);
+        } else {
+          setTrackedUsers([]);
+        }
+      } catch {
+        setTrackedUsers([]);
+      } finally {
+        setIsLoadingUsers(false);
+      }
+    };
+    loadTrackedUsers();
+  }, []);
+
+  // Load user history when selectedUser changes
+  useEffect(() => {
+    if (!selectedUser) {
+      setUserHistory([]);
+      return;
+    }
+    setIsLoadingHistory(true);
+    fetch(`/api/users/${selectedUser}/history`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && Array.isArray(data.data)) {
+          setUserHistory(data.data);
+        } else {
+          setUserHistory([]);
+        }
+      })
+      .catch(() => setUserHistory([]))
+      .finally(() => setIsLoadingHistory(false));
+  }, [selectedUser]);
+
+  // Load all users' history for combined view
+  const loadAllUsersHistory = useCallback(async () => {
+    if (trackedUsers.length < 2) {
+      setAllUsersHistory({});
+      return;
+    }
+    setIsLoadingAllHistory(true);
+    const allHistory: Record<string, HistoryData[]> = {};
+    await Promise.all(
+      trackedUsers.map(async (user) => {
+        try {
+          const res = await fetch(`/api/users/${user.username}/history`);
+          const data = await res.json();
+          if (data.success && Array.isArray(data.data)) {
+            allHistory[user.username] = data.data;
+          } else {
+            allHistory[user.username] = [];
+          }
+        } catch {
+          allHistory[user.username] = [];
+        }
+      })
+    );
+    setAllUsersHistory(allHistory);
+    setIsLoadingAllHistory(false);
+  }, [trackedUsers]);
+
+  useEffect(() => {
+    if (viewMode === 'combined' && trackedUsers.length > 1) {
+      loadAllUsersHistory();
+    }
+  }, [viewMode, trackedUsers, loadAllUsersHistory]);
+  const handleUserAdded = (user: TrackedUser) => {
+    setTrackedUsers(prev => {
+      // Avoid duplicates
+      if (prev.some(u => u.username === user.username)) return prev;
+      return [...prev, user];
+    });
+    // Optionally auto-select the new user
+    setSelectedUser(user.username);
+  };
+  const handleUserRemoved = (username: string) => {
+    setTrackedUsers(prev => prev.filter(user => user.username !== username));
+    if (selectedUser === username) setSelectedUser(null);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-100 via-slate-200 to-slate-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 flex flex-col">
@@ -52,19 +131,22 @@ export default function Dashboard() {
           <div>
             <h2 className="text-lg font-semibold mb-2 text-slate-800 dark:text-slate-100">Tracked Users</h2>
             <div className="space-y-2">
-              {trackedUsers.length === 0 && (
+              {isLoadingUsers ? (
+                <div className="text-slate-400 text-sm italic">Loading users...</div>
+              ) : trackedUsers.length === 0 ? (
                 <div className="text-slate-400 text-sm italic">No users yet</div>
+              ) : (
+                trackedUsers.map((user) => (
+                  <button
+                    key={user.username}
+                    onClick={() => setSelectedUser(user.username)}
+                    className={`w-full text-left p-2 rounded-lg transition-all flex items-center gap-2 ${selectedUser === user.username ? 'bg-accent-primary/10 border border-accent-primary text-accent-primary' : 'hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200'}`}
+                  >
+                    <span className="w-7 h-7 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold text-base">{user.username.charAt(0).toUpperCase()}</span>
+                    <span className="font-medium">u/{user.username}</span>
+                  </button>
+                ))
               )}
-              {trackedUsers.map((user) => (
-                <button
-                  key={user.username}
-                  onClick={() => setSelectedUser(user.username)}
-                  className={`w-full text-left p-2 rounded-lg transition-all flex items-center gap-2 ${selectedUser === user.username ? 'bg-accent-primary/10 border border-accent-primary text-accent-primary' : 'hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200'}`}
-                >
-                  <span className="w-7 h-7 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold text-base">{user.username.charAt(0).toUpperCase()}</span>
-                  <span className="font-medium">u/{user.username}</span>
-                </button>
-              ))}
             </div>
             {selectedUser && (
               <button
@@ -94,12 +176,19 @@ export default function Dashboard() {
           <div className="w-full max-w-4xl mx-auto">
             {viewMode === 'individual' ? (
               selectedUser ? (
-                <ChartContainer
-                  data={userHistory}
-                  username={selectedUser}
-                  height={420}
-                  className="!bg-transparent !shadow-none !p-0"
-                />
+                isLoadingHistory ? (
+                  <div className="flex items-center justify-center py-12">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent-primary"></div>
+                    <span className="ml-3 text-secondary">Loading chart data for u/{selectedUser}...</span>
+                  </div>
+                ) : (
+                  <ChartContainer
+                    data={userHistory}
+                    username={selectedUser}
+                    height={420}
+                    className="!bg-transparent !shadow-none !p-0"
+                  />
+                )
               ) : (
                 <div className="p-12 text-center text-slate-400">
                   <svg className="mx-auto h-16 w-16 text-muted mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -121,11 +210,18 @@ export default function Dashboard() {
               )
             ) : (
               trackedUsers.length >= 2 ? (
-                <CombinedChartContainer
-                  data={{}}
-                  height={420}
-                  className="!bg-transparent !shadow-none !p-0"
-                />
+                isLoadingAllHistory ? (
+                  <div className="flex items-center justify-center py-12">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent-primary"></div>
+                    <span className="ml-3 text-secondary">Loading combined chart data...</span>
+                  </div>
+                ) : (
+                  <CombinedChartContainer
+                    data={allUsersHistory}
+                    height={420}
+                    className="!bg-transparent !shadow-none !p-0"
+                  />
+                )
               ) : (
                 <div className="p-12 text-center text-slate-400">
                   <svg className="mx-auto h-16 w-16 text-accent-secondary mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
