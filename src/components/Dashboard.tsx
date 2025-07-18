@@ -117,20 +117,17 @@ export default function Dashboard() {
       </header>
       {/* Main content: sidebar + main area */}
       <div className="flex-1 flex flex-row w-full max-w-[1600px] mx-auto">
-        {/* Sidebar */}
+        {/* Sidebar: Combined Manage + Tracked Users */}
         <aside className="w-full max-w-xs min-w-[260px] bg-white/70 dark:bg-slate-900/70 border-r border-slate-200 dark:border-slate-800 px-4 py-8 flex flex-col gap-8 shadow-lg z-10">
           <div>
-            <h2 className="text-lg font-semibold mb-2 text-slate-800 dark:text-slate-100">Manage Users</h2>
+            <h2 className="text-lg font-semibold mb-2 text-slate-800 dark:text-slate-100">Tracked Users</h2>
             <UserManagement
               onUserAdded={handleUserAdded}
               onUserRemoved={handleUserRemoved}
               initialUsers={trackedUsers}
               className="!bg-transparent !shadow-none !p-0"
             />
-          </div>
-          <div>
-            <h2 className="text-lg font-semibold mb-2 text-slate-800 dark:text-slate-100">Tracked Users</h2>
-            <div className="space-y-2">
+            <div className="mt-6 space-y-2">
               {isLoadingUsers ? (
                 <div className="text-slate-400 text-sm italic">Loading users...</div>
               ) : trackedUsers.length === 0 ? (
@@ -155,7 +152,7 @@ export default function Dashboard() {
               >Clear selection</button>
             )}
           </div>
-          <div>
+          <div className="mt-8">
             <h2 className="text-lg font-semibold mb-2 text-slate-800 dark:text-slate-100">Chart View</h2>
             <div className="flex gap-2">
               <button
