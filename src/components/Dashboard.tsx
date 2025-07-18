@@ -170,7 +170,7 @@ export default function Dashboard() {
                     <span className="ml-3 text-secondary">Loading chart data for u/{selectedUser}...</span>
                   </div>
                 ) : (
-                  <AdvancedChartContainer
+                  <CombinedChartContainer
                     data={selectedUser ? { [selectedUser]: userHistory } : {}}
                     height={420}
                     className="!bg-transparent !shadow-none !p-0"
@@ -203,7 +203,7 @@ export default function Dashboard() {
                     <span className="ml-3 text-secondary">Loading combined chart data...</span>
                   </div>
                 ) : (
-                  <CombinedChartContainer
+                  <AdvancedChartContainer
                     data={allUsersHistory}
                     height={420}
                     className="!bg-transparent !shadow-none !p-0"
