@@ -12,6 +12,7 @@ interface CollectionResult {
   error?: string;
   karma?: number;
   postCount?: number;
+  commentCount?: number;
 }
 
 interface CollectionSummary {
@@ -75,7 +76,8 @@ async function performDataCollection(): Promise<CollectionSummary> {
         const historyResult = await UserHistoryRepository.create(
           user.username,
           redditData.karma,
-          redditData.post_count
+          redditData.post_count,
+          redditData.comment_count
         );
 
         if (!historyResult.success) {
@@ -102,6 +104,7 @@ async function performDataCollection(): Promise<CollectionSummary> {
           success: true,
           karma: redditData.karma,
           postCount: redditData.post_count,
+          commentCount: redditData.comment_count,
         };
         results.push(result);
 
@@ -110,6 +113,7 @@ async function performDataCollection(): Promise<CollectionSummary> {
           {
             karma: redditData.karma,
             postCount: redditData.post_count,
+            commentCount: redditData.comment_count,
           }
         );
 

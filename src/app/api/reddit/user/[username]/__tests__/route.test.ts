@@ -1,14 +1,14 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { NextRequest } from 'next/server';
 import { POST, GET } from '../route';
-import { fetchRedditUserData } from '../../../../../../lib/reddit-api';
+import { fetchRedditUserDataOAuth } from '../../../../../../lib/reddit-oauth';
 import { UserHistoryRepository } from '../../../../../../lib/database';
 
 // Mock the dependencies
-vi.mock('../../../../../../lib/reddit-api');
+vi.mock('../../../../../../lib/reddit-oauth');
 vi.mock('../../../../../../lib/database');
 
-const mockFetchRedditUserData = vi.mocked(fetchRedditUserData);
+const mockFetchRedditUserData = vi.mocked(fetchRedditUserDataOAuth);
 const mockUserHistoryRepository = vi.mocked(UserHistoryRepository, true);
 
 describe('/api/reddit/user/[username]', () => {

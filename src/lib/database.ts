@@ -155,7 +155,7 @@ export class UserHistoryRepository {
     }
   }
 
-  static async create(username: string, karma: number, postCount: number): Promise<ApiResponse<HistoryData>> {
+  static async create(username: string, karma: number, postCount: number, commentCount: number = 0): Promise<ApiResponse<HistoryData>> {
     try {
       const { data, error } = await supabase
         .from('user_history')
@@ -163,6 +163,7 @@ export class UserHistoryRepository {
           username,
           karma,
           post_count: postCount,
+          comment_count: commentCount,
           collected_at: new Date().toISOString()
         })
         .select()
@@ -251,4 +252,8 @@ export const validateKarma = (karma: number): boolean => {
 
 export const validatePostCount = (postCount: number): boolean => {
   return Number.isInteger(postCount) && postCount >= 0;
+};
+
+export const validateCommentCount = (commentCount: number): boolean => {
+  return Number.isInteger(commentCount) && commentCount >= 0;
 };

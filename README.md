@@ -288,7 +288,7 @@ Reddit_Tracker/
 │   │   └── __tests__/         # Component tests
 │   └── lib/                   # Utilities and configurations
 │       ├── database.ts        # Database operations
-│       ├── reddit-api.ts      # Reddit API client
+│       ├── reddit-oauth.ts   # Reddit OAuth API client
 │       ├── types.ts           # TypeScript interfaces
 │       ├── logging.ts         # Logging utilities
 │       └── error-handling.ts  # Error management

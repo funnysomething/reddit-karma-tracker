@@ -139,6 +139,7 @@ export class RedditOAuthClient {
         username: userData.name,
         karma: userData.link_karma + userData.comment_karma,
         post_count: userData.link_karma, // Using link_karma as post count approximation
+        comment_count: userData.comment_karma, // Using comment_karma as comment count
       };
     } catch (error) {
       console.error(`Error fetching Reddit user data for ${username}:`, error);
@@ -177,36 +178,39 @@ export class RedditOAuthClient {
   }
 }
 
-// Create default OAuth client instance
-export function createRedditOAuthClient(): RedditOAuthClient {
-  const clientId = process.env.REDDIT_CLIENT_ID;
-  const clientSecret = process.env.REDDIT_CLIENT_SECRET;
-  const userAgent = process.env.REDDIT_USER_AGENT || "RedditKarmaTracker/1.0";
+// Singleton OAuth client instance for token reuse
+let defaultClient: RedditOAuthClient | null = null;
 
-  if (!clientId || !clientSecret) {
-    throw new Error(
-      "Reddit OAuth credentials not configured. Please set REDDIT_CLIENT_ID and REDDIT_CLIENT_SECRET environment variables."
-    );
+function getDefaultClient(): RedditOAuthClient {
+  if (!defaultClient) {
+    const clientId = process.env.REDDIT_CLIENT_ID;
+    const clientSecret = process.env.REDDIT_CLIENT_SECRET;
+    const userAgent = process.env.REDDIT_USER_AGENT || "RedditKarmaTracker/1.0";
+
+    if (!clientId || !clientSecret) {
+      throw new Error(
+        "Reddit OAuth credentials not configured. Please set REDDIT_CLIENT_ID and REDDIT_CLIENT_SECRET environment variables."
+      );
+    }
+
+    defaultClient = new RedditOAuthClient({
+      clientId,
+      clientSecret,
+      userAgent,
+    });
   }
-
-  return new RedditOAuthClient({
-    clientId,
-    clientSecret,
-    userAgent,
-  });
+  return defaultClient;
 }
 
-// Utility functions for easier usage
+// Utility functions using singleton client for token reuse
 export async function fetchRedditUserDataOAuth(
   username: string
 ): Promise<RedditUserData> {
-  const client = createRedditOAuthClient();
-  return client.fetchUserData(username);
+  return getDefaultClient().fetchUserData(username);
 }
 
 export async function validateRedditUsernameOAuth(
   username: string
 ): Promise<boolean> {
-  const client = createRedditOAuthClient();
-  return client.userExists(username);
+  return getDefaultClient().userExists(username);
 }

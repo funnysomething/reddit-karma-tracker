@@ -2,14 +2,14 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest } from 'next/server';
 import { GET, POST } from '../route';
 import { TrackedUsersRepository } from '../../../../lib/database';
-import { validateRedditUsername } from '../../../../lib/reddit-api';
+import { validateRedditUsernameOAuth } from '../../../../lib/reddit-oauth';
 
 // Mock dependencies
 vi.mock('../../../../lib/database');
-vi.mock('../../../../lib/reddit-api');
+vi.mock('../../../../lib/reddit-oauth');
 
 const mockedTrackedUsersRepository = vi.mocked(TrackedUsersRepository);
-const mockedValidateRedditUsername = vi.mocked(validateRedditUsername);
+const mockedValidateRedditUsername = vi.mocked(validateRedditUsernameOAuth);
 
 describe('/api/users', () => {
   beforeEach(() => {

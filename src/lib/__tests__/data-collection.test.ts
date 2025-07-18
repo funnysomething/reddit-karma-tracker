@@ -1,14 +1,14 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { DataCollectionService, collectSingleUserData, collectAllTrackedUsersData } from '../data-collection';
-import { fetchRedditUserData } from '../reddit-api';
+import { fetchRedditUserDataOAuth } from '../reddit-oauth';
 import { TrackedUsersRepository, UserHistoryRepository } from '../database';
 import { RedditUserData, TrackedUser, HistoryData } from '../types';
 
 // Mock the dependencies
-vi.mock('../reddit-api');
+vi.mock('../reddit-oauth');
 vi.mock('../database');
 
-const mockFetchRedditUserData = vi.mocked(fetchRedditUserData);
+const mockFetchRedditUserData = vi.mocked(fetchRedditUserDataOAuth);
 const mockTrackedUsersRepository = vi.mocked(TrackedUsersRepository, true);
 const mockUserHistoryRepository = vi.mocked(UserHistoryRepository, true);
 

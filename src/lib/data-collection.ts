@@ -1,4 +1,4 @@
-import { fetchRedditUserData } from './reddit-api';
+import { fetchRedditUserDataOAuth } from './reddit-oauth';
 import { TrackedUsersRepository, UserHistoryRepository } from './database';
 import { HistoryData, ApiResponse } from './types';
 import { classifyRedditError, getUserFriendlyErrorMessage } from './error-handling';
@@ -12,7 +12,7 @@ export class DataCollectionService {
   static async collectUserData(username: string): Promise<ApiResponse<HistoryData>> {
     try {
       // Fetch current Reddit user data
-      const redditUserData = await fetchRedditUserData(username);
+      const redditUserData = await fetchRedditUserDataOAuth(username);
       
       // Store the data in the database with timestamp
       const storeResult = await UserHistoryRepository.create(

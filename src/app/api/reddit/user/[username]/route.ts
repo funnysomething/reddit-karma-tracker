@@ -99,7 +99,8 @@ export async function POST(
     const storeResult = await UserHistoryRepository.create(
       redditUserData.username,
       redditUserData.karma,
-      redditUserData.post_count
+      redditUserData.post_count,
+      redditUserData.comment_count
     );
 
     if (!storeResult.success) {

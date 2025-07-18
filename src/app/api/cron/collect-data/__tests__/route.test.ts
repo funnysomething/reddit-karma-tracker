@@ -13,8 +13,8 @@ vi.mock('@/lib/database', () => ({
   }
 }));
 
-vi.mock('@/lib/reddit-api', () => ({
-  fetchRedditUserData: vi.fn()
+vi.mock('@/lib/reddit-oauth', () => ({
+  fetchRedditUserDataOAuth: vi.fn()
 }));
 
 vi.mock('@/lib/logging', () => ({
@@ -30,7 +30,7 @@ vi.mock('@/lib/error-handling', () => ({
 }));
 
 import { TrackedUsersRepository, UserHistoryRepository } from '@/lib/database';
-import { fetchRedditUserData } from '@/lib/reddit-api';
+import { fetchRedditUserDataOAuth } from '@/lib/reddit-oauth';
 import { DataCollectionLogger } from '@/lib/logging';
 
 describe('/api/cron/collect-data', () => {
@@ -59,7 +59,7 @@ describe('/api/cron/collect-data', () => {
       ]
     });
 
-    vi.mocked(fetchRedditUserData).mockImplementation(async (username) => ({
+    vi.mocked(fetchRedditUserDataOAuth).mockImplementation(async (username) => ({
       karma: username === 'user1' ? 100 : 200,
       post_count: username === 'user1' ? 5 : 10
     }));
@@ -117,7 +117,7 @@ describe('/api/cron/collect-data', () => {
       ]
     });
 
-    vi.mocked(fetchRedditUserData).mockImplementation(async (username) => {
+    vi.mocked(fetchRedditUserDataOAuth).mockImplementation(async (username) => {
       if (username === 'user1') {
         throw new Error('User not found');
       }
@@ -174,7 +174,8 @@ describe('/api/cron/collect-data', () => {
       ]
     });
 
-    vi.mocked(fetchRedditUserData).mockResolvedValue({
+    vi.mocked(fetchRedditUserDataOAuth).mockResolvedValue({
+      username: 'testuser',
       karma: 100,
       post_count: 5
     });
@@ -227,7 +228,8 @@ describe('/api/cron/collect-data', () => {
       ]
     });
 
-    vi.mocked(fetchRedditUserData).mockResolvedValue({
+    vi.mocked(fetchRedditUserDataOAuth).mockResolvedValue({
+      username: 'user1',
       karma: 100,
       post_count: 5
     });

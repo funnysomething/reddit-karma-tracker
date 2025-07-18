@@ -12,6 +12,7 @@ export interface HistoryData {
   username: string;
   karma: number;
   post_count: number;
+  comment_count: number;
   collected_at: string;
 }
 
@@ -20,6 +21,7 @@ export interface RedditUserData {
   username: string;
   karma: number;
   post_count: number;
+  comment_count: number;
 }
 
 // Chart data types
@@ -27,6 +29,7 @@ export interface ChartDataPoint {
   date: string;
   karma: number;
   posts: number;
+  comments: number;
   username: string;
 }
 
@@ -48,13 +51,13 @@ export interface UserManagementState {
 export interface UserChartProps {
   username: string;
   data: HistoryData[];
-  metric: 'karma' | 'posts';
+  metric: 'karma' | 'posts' | 'comments';
 }
 
 export interface CombinedChartProps {
   users: string[];
   data: Record<string, HistoryData[]>;
-  metric: 'karma' | 'posts';
+  metric: 'karma' | 'posts' | 'comments';
 }
 
 export interface DashboardState {

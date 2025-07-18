@@ -10,9 +10,7 @@
     "test": "vitest run --environment=jsdom",
     "test:watch": "vitest --environment=jsdom",
     "test:ui": "vitest --ui --environment=jsdom",
-    "test:node": "vitest run --environment=node reddit-api-node",
-    "test:reddit": "npx tsx scripts/test-reddit-api.ts",
-    "test:reddit-multi": "npx tsx scripts/test-multiple-users.ts",
+
     "setup:local": "npx tsx scripts/setup-local.ts",
     "test:api": "npx tsx scripts/test-api-endpoints.ts",
     "test:api:local": "npx tsx scripts/test-api-endpoints.ts http://localhost:3000",

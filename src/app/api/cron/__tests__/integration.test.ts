@@ -13,8 +13,8 @@ vi.mock('@/lib/database', () => ({
   }
 }));
 
-vi.mock('@/lib/reddit-api', () => ({
-  fetchRedditUserData: vi.fn()
+vi.mock('@/lib/reddit-oauth', () => ({
+  fetchRedditUserDataOAuth: vi.fn()
 }));
 
 vi.mock('@/lib/logging', () => ({
@@ -30,7 +30,7 @@ vi.mock('@/lib/error-handling', () => ({
 }));
 
 import { TrackedUsersRepository, UserHistoryRepository } from '@/lib/database';
-import { fetchRedditUserData } from '@/lib/reddit-api';
+import { fetchRedditUserDataOAuth } from '@/lib/reddit-oauth';
 
 describe('Cron Data Collection Integration', () => {
   beforeEach(() => {
@@ -60,12 +60,12 @@ describe('Cron Data Collection Integration', () => {
     });
 
     // Mock Reddit API responses - some succeed, some fail
-    vi.mocked(fetchRedditUserData).mockImplementation(async (username) => {
+    vi.mocked(fetchRedditUserDataOAuth).mockImplementation(async (username) => {
       switch (username) {
         case 'spez':
-          return { karma: 150000, post_count: 1200 };
+          return { username: 'spez', karma: 150000, post_count: 1200 };
         case 'kn0thing':
-          return { karma: 75000, post_count: 800 };
+          return { username: 'kn0thing', karma: 75000, post_count: 800 };
         case 'nonexistentuser':
           throw new Error('User not found or suspended');
         default:
@@ -131,7 +131,7 @@ describe('Cron Data Collection Integration', () => {
 
     // Verify repository calls
     expect(TrackedUsersRepository.getAll).toHaveBeenCalledTimes(1);
-    expect(fetchRedditUserData).toHaveBeenCalledTimes(3);
+    expect(fetchRedditUserDataOAuth).toHaveBeenCalledTimes(3);
     expect(UserHistoryRepository.create).toHaveBeenCalledTimes(2);
     expect(TrackedUsersRepository.updateLastUpdated).toHaveBeenCalledTimes(2);
   });
@@ -152,9 +152,10 @@ describe('Cron Data Collection Integration', () => {
     });
 
     // Mock successful Reddit API calls for all users
-    vi.mocked(fetchRedditUserData).mockImplementation(async (username) => {
+    vi.mocked(fetchRedditUserDataOAuth).mockImplementation(async (username) => {
       const userNum = parseInt(username.replace('user', ''));
       return {
+        username,
         karma: userNum * 1000,
         post_count: userNum * 10
       };

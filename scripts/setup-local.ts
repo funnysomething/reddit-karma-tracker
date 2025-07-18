@@ -4,7 +4,7 @@
  */
 
 import { createClient } from '@supabase/supabase-js';
-import { RedditApiClient } from '../src/lib/reddit-api';
+import { RedditOAuthClient } from '../src/lib/reddit-oauth';
 import fs from 'fs';
 import path from 'path';
 
@@ -64,20 +64,32 @@ async function setupLocal() {
     process.exit(1);
   }
 
-  // Test Reddit API
+  // Test Reddit OAuth API
   try {
-    console.log('🔗 Testing Reddit API...');
-    const redditClient = new RedditApiClient({
-      userAgent: userAgent || 'RedditKarmaTracker/1.0 (Local Setup Test)'
-    });
+    console.log('🔗 Testing Reddit OAuth API...');
+    
+    const clientId = process.env.REDDIT_CLIENT_ID;
+    const clientSecret = process.env.REDDIT_CLIENT_SECRET;
+    
+    if (!clientId || !clientSecret) {
+      console.log('⚠️  Reddit OAuth credentials not configured');
+      console.log('   Please set REDDIT_CLIENT_ID and REDDIT_CLIENT_SECRET in .env.local');
+      console.log('   Skipping Reddit API test...');
+    } else {
+      const redditClient = new RedditOAuthClient({
+        clientId,
+        clientSecret,
+        userAgent: userAgent || 'RedditKarmaTracker/1.0 (Local Setup Test)'
+      });
 
-    const userData = await redditClient.fetchUserData('spez');
-    console.log('✅ Reddit API working');
-    console.log(`📊 Test user data: u/${userData.username} has ${userData.karma} karma`);
+      const userData = await redditClient.fetchUserData('spez');
+      console.log('✅ Reddit OAuth API working');
+      console.log(`📊 Test user data: u/${userData.username} has ${userData.karma} karma`);
+    }
 
   } catch (error) {
-    console.log('❌ Reddit API test failed:', (error as Error).message);
-    console.log('💡 This might be a network issue or rate limiting');
+    console.log('❌ Reddit OAuth API test failed:', (error as Error).message);
+    console.log('💡 This might be a network issue, rate limiting, or invalid credentials');
   }
 
   // Test database tables
