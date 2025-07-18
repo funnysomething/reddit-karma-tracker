@@ -15,9 +15,34 @@ export default function Dashboard() {
   const [allUsersHistory, setAllUsersHistory] = useState<Record<string, HistoryData[]>>({});
   const [viewMode, setViewMode] = useState<'individual' | 'combined'>('individual');
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+  const [isLoadingUsers, setIsLoadingUsers] = useState(true);
   
-  // Suppress unused variable warning - will be used for loading states in future
-  void isLoadingHistory;
+  // Load tracked users on component mount
+  useEffect(() => {
+    loadTrackedUsers();
+  }, []);
+
+  const loadTrackedUsers = async () => {
+    try {
+      setIsLoadingUsers(true);
+      console.log('Loading tracked users...');
+      const response = await fetch('/api/users');
+      const data: ApiResponse<TrackedUser[]> = await response.json();
+
+      if (data.success) {
+        console.log('Loaded tracked users:', data.data);
+        setTrackedUsers(data.data || []);
+      } else {
+        console.error('Failed to load tracked users:', data.error);
+        setTrackedUsers([]);
+      }
+    } catch (error) {
+      console.error('Error loading tracked users:', error);
+      setTrackedUsers([]);
+    } finally {
+      setIsLoadingUsers(false);
+    }
+  };
 
   // Load user history when a user is selected
   useEffect(() => {
@@ -31,10 +56,14 @@ export default function Dashboard() {
   const loadUserHistory = async (username: string) => {
     try {
       setIsLoadingHistory(true);
+      console.log(`Loading history for user: ${username}`);
       const response = await fetch(`/api/users/${username}/history`);
       const data: ApiResponse<HistoryData[]> = await response.json();
 
+      console.log(`History API response for ${username}:`, data);
+
       if (data.success) {
+        console.log(`History data for ${username}:`, data.data);
         setUserHistory(data.data || []);
       } else {
         console.error('Failed to load user history:', data.error);
@@ -84,11 +113,21 @@ export default function Dashboard() {
   }, [viewMode, trackedUsers, loadAllUsersHistory]);
 
   const handleUserAdded = (user: TrackedUser) => {
-    setTrackedUsers(prev => [...prev, user]);
+    console.log('Dashboard: User added:', user);
+    setTrackedUsers(prev => {
+      const updated = [...prev, user];
+      console.log('Dashboard: Updated tracked users:', updated);
+      return updated;
+    });
   };
 
   const handleUserRemoved = (username: string) => {
-    setTrackedUsers(prev => prev.filter(user => user.username !== username));
+    console.log('Dashboard: User removed:', username);
+    setTrackedUsers(prev => {
+      const updated = prev.filter(user => user.username !== username);
+      console.log('Dashboard: Updated tracked users after removal:', updated);
+      return updated;
+    });
     
     // Clear selection if the removed user was selected
     if (selectedUser === username) {
@@ -126,14 +165,22 @@ export default function Dashboard() {
           <BentoCard size="md" priority="high">
             <BentoCardHeader 
               title="Manage Users" 
-              subtitle="Add and remove tracked Reddit users"
+              subtitle={isLoadingUsers ? "Loading tracked users..." : "Add and remove tracked Reddit users"}
             />
             <BentoCardContent>
-              <UserManagement
-                onUserAdded={handleUserAdded}
-                onUserRemoved={handleUserRemoved}
-                className="!bg-transparent !shadow-none !p-0"
-              />
+              {isLoadingUsers ? (
+                <div className="flex items-center justify-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent-primary"></div>
+                  <span className="ml-3 text-secondary">Loading users...</span>
+                </div>
+              ) : (
+                <UserManagement
+                  onUserAdded={handleUserAdded}
+                  onUserRemoved={handleUserRemoved}
+                  initialUsers={trackedUsers}
+                  className="!bg-transparent !shadow-none !p-0"
+                />
+              )}
             </BentoCardContent>
           </BentoCard>
 
@@ -229,12 +276,19 @@ export default function Dashboard() {
               {viewMode === 'individual' ? (
                 // Individual Chart View
                 selectedUser ? (
-                  <ChartContainer
-                    data={userHistory}
-                    username={selectedUser}
-                    height={400}
-                    className="!bg-transparent !shadow-none !p-0"
-                  />
+                  isLoadingHistory ? (
+                    <div className="flex items-center justify-center py-12">
+                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent-primary"></div>
+                      <span className="ml-3 text-secondary">Loading chart data for u/{selectedUser}...</span>
+                    </div>
+                  ) : (
+                    <ChartContainer
+                      data={userHistory}
+                      username={selectedUser}
+                      height={400}
+                      className="!bg-transparent !shadow-none !p-0"
+                    />
+                  )
                 ) : (
                   <div className="p-12 text-center">
                     <svg className="mx-auto h-16 w-16 text-muted mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

@@ -23,7 +23,9 @@
     "test:debug": "npx tsx scripts/test-debug.ts",
     "test:debug:vercel": "npx tsx scripts/test-debug.ts https://reddit-karma-tracker.vercel.app",
     "test:cron": "npx tsx scripts/test-cron.ts",
-    "test:cron:vercel": "npx tsx scripts/test-cron.ts https://reddit-karma-tracker.vercel.app"
+    "test:cron:vercel": "npx tsx scripts/test-cron.ts https://reddit-karma-tracker.vercel.app",
+    "test:history": "npx tsx scripts/test-history.ts",
+    "test:history:vercel": "npx tsx scripts/test-history.ts https://reddit-karma-tracker.vercel.app"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.51.0",

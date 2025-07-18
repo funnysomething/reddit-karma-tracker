@@ -26,6 +26,30 @@ export class TrackedUsersRepository {
 
   static async create(username: string): Promise<ApiResponse<TrackedUser>> {
     try {
+      // First, try to reactivate an existing soft-deleted user
+      const { data: existingUser, error: selectError } = await supabase
+        .from('tracked_users')
+        .select('*')
+        .eq('username', username)
+        .single();
+
+      if (existingUser && !selectError) {
+        // User exists, reactivate them
+        const { data, error } = await supabase
+          .from('tracked_users')
+          .update({ is_active: true, updated_at: new Date().toISOString() })
+          .eq('username', username)
+          .select()
+          .single();
+
+        if (error) {
+          return { success: false, error: error.message };
+        }
+
+        return { success: true, data };
+      }
+
+      // User doesn't exist, create new record
       const { data, error } = await supabase
         .from('tracked_users')
         .insert({ username, is_active: true })

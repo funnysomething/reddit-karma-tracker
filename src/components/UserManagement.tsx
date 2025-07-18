@@ -7,24 +7,34 @@ interface UserManagementProps {
   className?: string;
   onUserAdded?: (user: TrackedUser) => void;
   onUserRemoved?: (username: string) => void;
+  initialUsers?: TrackedUser[];
 }
 
 export default function UserManagement({
   className = '',
   onUserAdded,
-  onUserRemoved
+  onUserRemoved,
+  initialUsers = []
 }: UserManagementProps) {
   const [username, setUsername] = useState('');
-  const [trackedUsers, setTrackedUsers] = useState<TrackedUser[]>([]);
+  const [trackedUsers, setTrackedUsers] = useState<TrackedUser[]>(initialUsers);
   const [isLoading, setIsLoading] = useState(false);
-  const [isLoadingUsers, setIsLoadingUsers] = useState(true);
+  const [isLoadingUsers, setIsLoadingUsers] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
 
-  // Load tracked users on component mount
+  // Update tracked users when initialUsers prop changes
   useEffect(() => {
-    loadTrackedUsers();
-  }, []);
+    console.log('UserManagement: initialUsers changed:', initialUsers);
+    setTrackedUsers(initialUsers);
+  }, [initialUsers]);
+
+  // Only load tracked users if no initial users provided
+  useEffect(() => {
+    if (initialUsers.length === 0) {
+      loadTrackedUsers();
+    }
+  }, [initialUsers.length]);
 
   const loadTrackedUsers = async () => {
     try {
