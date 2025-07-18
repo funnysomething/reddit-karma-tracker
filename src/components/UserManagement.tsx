@@ -263,16 +263,6 @@ export default function UserManagement({
         )}
       </div>
 
-      {/* Usage Instructions */}
-      <div className="mt-6 p-4 bg-accent-primary/10 border border-accent-primary/20 rounded-md">
-        <h4 className="text-sm font-medium text-accent-primary mb-2">How it works:</h4>
-        <ul className="text-xs text-accent-primary/80 space-y-1">
-          <li>• Add Reddit usernames to track their karma and post count over time</li>
-          <li>• Data is automatically collected daily at 6 AM UTC</li>
-          <li>• View historical charts and trends for each tracked user</li>
-          <li>• Remove users you no longer want to track</li>
-        </ul>
-      </div>
     </div>
   );
 }
