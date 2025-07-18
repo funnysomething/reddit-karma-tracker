@@ -30,6 +30,8 @@ ChartJS.register(
   TimeScale
 );
 
+
+
 interface KarmaChartProps {
   data: HistoryData[];
   username?: string;
@@ -38,6 +40,12 @@ interface KarmaChartProps {
   showLegend?: boolean;
   showTitle?: boolean;
   timeRange?: '1d' | '7d' | '30d' | '90d' | 'all';
+  metrics?: {
+    karma: boolean;
+    posts: boolean;
+    comments: boolean;
+    postsAndComments: boolean;
+  };
 }
 
 export default function KarmaChart({
@@ -47,7 +55,8 @@ export default function KarmaChart({
   height = 300,
   showLegend = true,
   showTitle = true,
-  timeRange = 'all'
+  timeRange = 'all',
+  metrics = { karma: true, posts: true, comments: true, postsAndComments: false }
 }: KarmaChartProps) {
   const { theme } = useTheme();
   const [chartData, setChartData] = useState<{
@@ -94,48 +103,56 @@ export default function KarmaChart({
     const postsColor = theme === 'dark' ? 'rgb(96, 165, 250)' : 'rgb(59, 130, 246)';
     const postsColorAlpha = theme === 'dark' ? 'rgba(96, 165, 250, 0.3)' : 'rgba(59, 130, 246, 0.3)';
 
+    const datasets = [];
+    if (metrics.karma) {
+      datasets.push({
+        label: 'Karma',
+        data: sortedData.map(item => item.karma),
+        borderColor: karmaColor,
+        backgroundColor: karmaColorAlpha,
+        tension: 0.2,
+        pointRadius: 3,
+        pointHoverRadius: 5,
+      });
+    }
+    if (metrics.posts) {
+      datasets.push({
+        label: 'Posts',
+        data: sortedData.map(item => item.post_count),
+        borderColor: postsColor,
+        backgroundColor: postsColorAlpha,
+        tension: 0.2,
+        pointRadius: 3,
+        pointHoverRadius: 5,
+      });
+    }
+    if (metrics.comments) {
+      datasets.push({
+        label: 'Comments',
+        data: sortedData.map(item => item.comment_count || 0),
+        borderColor: 'rgb(255, 205, 86)',
+        backgroundColor: 'rgba(255, 205, 86, 0.3)',
+        tension: 0.2,
+        pointRadius: 3,
+        pointHoverRadius: 5,
+      });
+    }
+    if (metrics.postsAndComments) {
+      datasets.push({
+        label: 'Posts + Comments',
+        data: sortedData.map(item => (item.post_count || 0) + (item.comment_count || 0)),
+        borderColor: 'rgb(153, 102, 255)',
+        backgroundColor: 'rgba(153, 102, 255, 0.3)',
+        tension: 0.2,
+        pointRadius: 3,
+        pointHoverRadius: 5,
+      });
+    }
     return {
       labels: sortedData.map(item => new Date(item.collected_at)),
-      datasets: [
-        {
-          label: 'Karma',
-          data: sortedData.map(item => item.karma),
-          borderColor: karmaColor,
-          backgroundColor: karmaColorAlpha,
-          tension: 0.2,
-          pointRadius: 3,
-          pointHoverRadius: 5,
-        },
-        {
-          label: 'Posts',
-          data: sortedData.map(item => item.post_count),
-          borderColor: postsColor,
-          backgroundColor: postsColorAlpha,
-          tension: 0.2,
-          pointRadius: 3,
-          pointHoverRadius: 5,
-        },
-        {
-          label: 'Comments',
-          data: sortedData.map(item => item.comment_count || 0),
-          borderColor: 'rgb(255, 205, 86)',
-          backgroundColor: 'rgba(255, 205, 86, 0.3)',
-          tension: 0.2,
-          pointRadius: 3,
-          pointHoverRadius: 5,
-        },
-        {
-          label: 'Posts + Comments',
-          data: sortedData.map(item => (item.post_count || 0) + (item.comment_count || 0)),
-          borderColor: 'rgb(153, 102, 255)',
-          backgroundColor: 'rgba(153, 102, 255, 0.3)',
-          tension: 0.2,
-          pointRadius: 3,
-          pointHoverRadius: 5,
-        }
-      ]
+      datasets
     };
-  }, [theme]);
+  }, [theme, metrics]);
 
   useEffect(() => {
     if (!data || data.length === 0) {

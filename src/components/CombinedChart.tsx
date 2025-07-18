@@ -111,7 +111,6 @@ export default function CombinedChart({
       userDataFiltered[username] = filtered.sort(
         (a, b) => new Date(a.collected_at).getTime() - new Date(b.collected_at).getTime()
       );
-      
       // Collect all timestamps
       filtered.forEach(item => allTimestamps.add(item.collected_at));
     });
@@ -168,6 +167,53 @@ export default function CombinedChart({
         spanGaps: true // Connect points even with null values
       };
     });
+
+    // Add combined dataset (sum of all users)
+    if (datasets.length > 1) {
+      const combinedData = sortedTimestamps.map((timestamp, idx) => {
+        let sum = 0;
+        Object.values(userDataFiltered).forEach(userHistory => {
+          const dataPoint = userHistory.find(
+            item => new Date(item.collected_at).getTime() === timestamp.getTime()
+          );
+          if (dataPoint) {
+            switch (selectedMetric) {
+              case 'karma': sum += dataPoint.karma; break;
+              case 'posts': sum += dataPoint.post_count; break;
+              case 'comments': sum += dataPoint.comment_count || 0; break;
+              case 'postsAndComments': sum += (dataPoint.post_count || 0) + (dataPoint.comment_count || 0); break;
+              default: sum += dataPoint.karma;
+            }
+          } else {
+            // Use previous value if available
+            const previousData = userHistory
+              .filter(item => new Date(item.collected_at) < timestamp)
+              .sort((a, b) => new Date(b.collected_at).getTime() - new Date(a.collected_at).getTime())[0];
+            if (previousData) {
+              switch (selectedMetric) {
+                case 'karma': sum += previousData.karma; break;
+                case 'posts': sum += previousData.post_count; break;
+                case 'comments': sum += previousData.comment_count || 0; break;
+                case 'postsAndComments': sum += (previousData.post_count || 0) + (previousData.comment_count || 0); break;
+                default: sum += previousData.karma;
+              }
+            }
+          }
+        });
+        return sum;
+      });
+      datasets.push({
+        label: 'Combined',
+        data: combinedData,
+        borderColor: 'rgb(255, 99, 71)',
+        backgroundColor: 'rgba(255, 99, 71, 0.2)',
+        tension: 0.2,
+        pointRadius: 3,
+        pointHoverRadius: 5,
+        fill: false,
+        spanGaps: true
+      });
+    }
 
     return {
       labels: sortedTimestamps,
