@@ -37,7 +37,7 @@ interface CombinedChartProps {
   showLegend?: boolean;
   showTitle?: boolean;
   timeRange?: '1d' | '7d' | '30d' | '90d' | 'all';
-  metric?: 'karma' | 'posts';
+  metric?: 'karma' | 'posts' | 'comments' | 'postsAndComments';
 }
 
 // Color palette for different users
@@ -131,20 +131,28 @@ export default function CombinedChart({
         const dataPoint = userHistory.find(
           item => new Date(item.collected_at).getTime() === timestamp.getTime()
         );
-        
         if (dataPoint) {
-          return selectedMetric === 'karma' ? dataPoint.karma : dataPoint.post_count;
+          switch (selectedMetric) {
+            case 'karma': return dataPoint.karma;
+            case 'posts': return dataPoint.post_count;
+            case 'comments': return dataPoint.comment_count || 0;
+            case 'postsAndComments': return (dataPoint.post_count || 0) + (dataPoint.comment_count || 0);
+            default: return dataPoint.karma;
+          }
         }
-        
         // Find the most recent data point before this timestamp
         const previousData = userHistory
           .filter(item => new Date(item.collected_at) < timestamp)
           .sort((a, b) => new Date(b.collected_at).getTime() - new Date(a.collected_at).getTime())[0];
-        
         if (previousData) {
-          return selectedMetric === 'karma' ? previousData.karma : previousData.post_count;
+          switch (selectedMetric) {
+            case 'karma': return previousData.karma;
+            case 'posts': return previousData.post_count;
+            case 'comments': return previousData.comment_count || 0;
+            case 'postsAndComments': return (previousData.post_count || 0) + (previousData.comment_count || 0);
+            default: return previousData.karma;
+          }
         }
-        
         return null; // No data available
       });
 
@@ -194,7 +202,7 @@ export default function CombinedChart({
       },
       title: {
         display: showTitle,
-        text: `${metric === 'karma' ? 'Karma' : 'Post Count'} Comparison`,
+        text: `${metric === 'karma' ? 'Karma' : metric === 'posts' ? 'Post Count' : metric === 'comments' ? 'Comment Count' : 'Posts + Comments'} Comparison`,
         font: {
           size: 16
         },
@@ -216,8 +224,11 @@ export default function CombinedChart({
           label: (context) => {
             const value = context.parsed.y;
             const label = context.dataset.label || '';
-            const metricLabel = metric === 'karma' ? 'karma' : 'posts';
-            return `${label}: ${value?.toLocaleString()} ${metricLabel}`;
+          let metricLabel = 'karma';
+          if (metric === 'posts') metricLabel = 'posts';
+          else if (metric === 'comments') metricLabel = 'comments';
+          else if (metric === 'postsAndComments') metricLabel = 'posts + comments';
+          return `${label}: ${value?.toLocaleString()} ${metricLabel}`;
           }
         }
       }
@@ -249,7 +260,7 @@ export default function CombinedChart({
         beginAtZero: true,
         title: {
           display: true,
-          text: metric === 'karma' ? 'Karma' : 'Post Count',
+          text: metric === 'karma' ? 'Karma' : metric === 'posts' ? 'Post Count' : metric === 'comments' ? 'Comment Count' : 'Posts + Comments',
           color: theme === 'dark' ? '#e2e8f0' : '#334155',
         },
         ticks: {
@@ -276,8 +287,7 @@ export default function CombinedChart({
     return (
       <div className={`flex items-center justify-center ${className}`} style={{ height: `${height}px` }}>
         <div className="flex flex-col items-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent-primary"></div>
-          <p className="mt-3 text-secondary">Loading comparison chart...</p>
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-accent-primary"></div>
         </div>
       </div>
     );
@@ -286,14 +296,10 @@ export default function CombinedChart({
   if (userCount === 0) {
     return (
       <div className={`flex items-center justify-center bg-tertiary rounded-lg ${className}`} style={{ height: `${height}px` }}>
-        <div className="text-center p-6">
-          <svg className="mx-auto h-12 w-12 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div className="text-center p-4 opacity-60">
+          <svg className="mx-auto h-10 w-10 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
           </svg>
-          <h3 className="mt-2 text-sm font-medium text-primary">No users to compare</h3>
-          <p className="mt-1 text-sm text-secondary">
-            Add multiple users to see comparison charts.
-          </p>
         </div>
       </div>
     );
@@ -302,17 +308,10 @@ export default function CombinedChart({
   if (userCount === 1) {
     return (
       <div className={`flex items-center justify-center bg-accent-primary/10 rounded-lg ${className}`} style={{ height: `${height}px` }}>
-        <div className="text-center p-6">
-          <svg className="mx-auto h-12 w-12 text-accent-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div className="text-center p-4 opacity-70">
+          <svg className="mx-auto h-10 w-10 text-accent-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
           </svg>
-          <h3 className="mt-2 text-sm font-medium text-accent-primary">Single user tracked</h3>
-          <p className="mt-1 text-sm text-accent-primary/80">
-            Add more users to enable comparison view.
-          </p>
-          <p className="mt-1 text-xs text-accent-primary/60">
-            Individual charts are available for single users.
-          </p>
         </div>
       </div>
     );
@@ -320,8 +319,11 @@ export default function CombinedChart({
 
   if (chartData) {
     return (
-      <div className={`${className}`} style={{ height: `${height}px` }}>
-        <Line options={chartOptions} data={chartData} />
+      <div
+        className={`relative w-full h-full min-h-[350px] ${className}`}
+        style={{ height: '100%', minHeight: 350 }}
+      >
+        <Line options={chartOptions} data={chartData} style={{ height: '100%' }} />
       </div>
     );
   }

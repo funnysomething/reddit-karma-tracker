@@ -114,6 +114,24 @@ export default function KarmaChart({
           tension: 0.2,
           pointRadius: 3,
           pointHoverRadius: 5,
+        },
+        {
+          label: 'Comments',
+          data: sortedData.map(item => item.comment_count || 0),
+          borderColor: 'rgb(255, 205, 86)',
+          backgroundColor: 'rgba(255, 205, 86, 0.3)',
+          tension: 0.2,
+          pointRadius: 3,
+          pointHoverRadius: 5,
+        },
+        {
+          label: 'Posts + Comments',
+          data: sortedData.map(item => (item.post_count || 0) + (item.comment_count || 0)),
+          borderColor: 'rgb(153, 102, 255)',
+          backgroundColor: 'rgba(153, 102, 255, 0.3)',
+          tension: 0.2,
+          pointRadius: 3,
+          pointHoverRadius: 5,
         }
       ]
     };

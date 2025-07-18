@@ -17,7 +17,7 @@ import { HistoryData } from '../lib/types';
 export interface UserChartProps {
   username: string;
   data: HistoryData[];
-  metric: 'karma' | 'posts';
+  metric: 'karma' | 'posts' | 'comments' | 'postsAndComments';
   className?: string;
 }
 
@@ -26,6 +26,8 @@ interface ChartDataPoint {
   timestamp: number;
   karma: number;
   posts: number;
+  comments: number;
+  postsAndComments: number;
   formattedDate: string;
 }
 
@@ -57,6 +59,8 @@ export default function UserChart({ username, data, metric, className = '' }: Us
         timestamp: date.getTime(),
         karma: item.karma,
         posts: item.post_count,
+        comments: item.comment_count || 0,
+        postsAndComments: (item.post_count || 0) + (item.comment_count || 0),
         formattedDate: date.toLocaleDateString('en-US', {
           month: 'short',
           day: 'numeric',
@@ -82,12 +86,14 @@ export default function UserChart({ username, data, metric, className = '' }: Us
   const stats = useMemo(() => {
     if (chartData.length === 0) return null;
 
-    const currentValue = chartData[chartData.length - 1]?.[metric === 'karma' ? 'karma' : 'posts'] || 0;
-    const previousValue = chartData[chartData.length - 2]?.[metric === 'karma' ? 'karma' : 'posts'] || currentValue;
+    let currentValue = 0, previousValue = 0, allValues: number[] = [];
+    if (metric === 'karma' || metric === 'posts' || metric === 'comments' || metric === 'postsAndComments') {
+      currentValue = chartData[chartData.length - 1]?.[metric] || 0;
+      previousValue = chartData[chartData.length - 2]?.[metric] || currentValue;
+      allValues = chartData.map(d => d[metric] || 0);
+    }
     const change = currentValue - previousValue;
     const changePercent = previousValue > 0 ? ((change / previousValue) * 100) : 0;
-
-    const allValues = chartData.map(d => metric === 'karma' ? d.karma : d.posts);
     const minValue = Math.min(...allValues);
     const maxValue = Math.max(...allValues);
 
@@ -181,7 +187,7 @@ export default function UserChart({ username, data, metric, className = '' }: Us
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
         <h3 className="text-xl font-bold text-gray-800 mb-4 sm:mb-0">
-          {metric === 'karma' ? 'Karma' : 'Posts'} History - u/{username}
+          {metric === 'karma' ? 'Karma' : metric === 'posts' ? 'Posts' : metric === 'comments' ? 'Comments' : 'Posts + Comments'} History - u/{username}
         </h3>
         
         {/* Time Range Selector */}
@@ -269,7 +275,7 @@ export default function UserChart({ username, data, metric, className = '' }: Us
             <Tooltip content={<CustomTooltip />} />
             <Legend />
             
-            {metric === 'karma' ? (
+            {metric === 'karma' && (
               <Line
                 type="monotone"
                 dataKey="karma"
@@ -279,7 +285,8 @@ export default function UserChart({ username, data, metric, className = '' }: Us
                 activeDot={{ r: 6, stroke: '#3b82f6', strokeWidth: 2 }}
                 name="Karma"
               />
-            ) : (
+            )}
+            {metric === 'posts' && (
               <Line
                 type="monotone"
                 dataKey="posts"
@@ -288,6 +295,28 @@ export default function UserChart({ username, data, metric, className = '' }: Us
                 dot={{ fill: '#10b981', strokeWidth: 2, r: 4 }}
                 activeDot={{ r: 6, stroke: '#10b981', strokeWidth: 2 }}
                 name="Posts"
+              />
+            )}
+            {metric === 'comments' && (
+              <Line
+                type="monotone"
+                dataKey="comments"
+                stroke="#f59e42"
+                strokeWidth={2}
+                dot={{ fill: '#f59e42', strokeWidth: 2, r: 4 }}
+                activeDot={{ r: 6, stroke: '#f59e42', strokeWidth: 2 }}
+                name="Comments"
+              />
+            )}
+            {metric === 'postsAndComments' && (
+              <Line
+                type="monotone"
+                dataKey="postsAndComments"
+                stroke="#a855f7"
+                strokeWidth={2}
+                dot={{ fill: '#a855f7', strokeWidth: 2, r: 4 }}
+                activeDot={{ r: 6, stroke: '#a855f7', strokeWidth: 2 }}
+                name="Posts + Comments"
               />
             )}
             

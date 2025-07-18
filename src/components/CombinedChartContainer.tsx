@@ -17,7 +17,7 @@ export default function CombinedChartContainer({
   height = 400
 }: CombinedChartContainerProps) {
   const [timeRange, setTimeRange] = useState<'1d' | '7d' | '30d' | '90d' | 'all'>('all');
-  const [metric, setMetric] = useState<'karma' | 'posts'>('karma');
+  const [metric, setMetric] = useState<'karma' | 'posts' | 'comments' | 'postsAndComments'>('karma');
 
   const userCount = Object.keys(data).length;
   const totalDataPoints = Object.values(data).reduce((sum, userHistory) => sum + userHistory.length, 0);
@@ -50,7 +50,7 @@ export default function CombinedChartContainer({
             </button>
             <button
               type="button"
-              className={`px-4 py-2 text-sm font-medium rounded-r-md border-l-0 border transition-theme ${
+              className={`px-4 py-2 text-sm font-medium border-l-0 border transition-theme ${
                 metric === 'posts'
                   ? 'bg-accent-primary text-white border-accent-primary'
                   : 'bg-secondary text-secondary border-default hover:bg-tertiary'
@@ -58,6 +58,28 @@ export default function CombinedChartContainer({
               onClick={() => setMetric('posts')}
             >
               Posts
+            </button>
+            <button
+              type="button"
+              className={`px-4 py-2 text-sm font-medium border-l-0 border transition-theme ${
+                metric === 'comments'
+                  ? 'bg-accent-primary text-white border-accent-primary'
+                  : 'bg-secondary text-secondary border-default hover:bg-tertiary'
+              }`}
+              onClick={() => setMetric('comments')}
+            >
+              Comments
+            </button>
+            <button
+              type="button"
+              className={`px-4 py-2 text-sm font-medium rounded-r-md border-l-0 border transition-theme ${
+                metric === 'postsAndComments'
+                  ? 'bg-accent-primary text-white border-accent-primary'
+                  : 'bg-secondary text-secondary border-default hover:bg-tertiary'
+              }`}
+              onClick={() => setMetric('postsAndComments')}
+            >
+              Posts + Comments
             </button>
           </div>
           
