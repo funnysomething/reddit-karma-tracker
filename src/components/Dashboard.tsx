@@ -1,9 +1,11 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
 import UserManagement from './UserManagement';
 import AdvancedChartContainer from './AdvancedChartContainer';
 import ThemeToggle from './ThemeToggle';
+import { getCombinedChartData } from './chartUtils';
 import { TrackedUser, HistoryData } from '../lib/types';
 
 export default function Dashboard() {
@@ -204,7 +206,7 @@ export default function Dashboard() {
                   </div>
                 ) : (
                   <AdvancedChartContainer
-                    data={allUsersHistory}
+                    data={getCombinedChartData(allUsersHistory)}
                     height={420}
                     className="!bg-transparent !shadow-none !p-0"
                     showAdvancedStats={true}
