@@ -320,10 +320,29 @@ export default function CombinedChart({
   if (chartData) {
     return (
       <div
-        className={`relative w-full h-full min-h-[350px] ${className}`}
+        className={`relative w-full h-full min-h-[350px] max-w-5xl mx-auto px-0 md:px-4 py-0 md:py-6 flex flex-col items-stretch justify-center rounded-2xl shadow-xl border border-slate-200/60 dark:border-slate-700/60 backdrop-blur-md bg-white/70 dark:bg-slate-900/70 transition-all hover:shadow-2xl ${className}`}
         style={{ height: '100%', minHeight: 350 }}
       >
-        <Line options={chartOptions} data={chartData} style={{ height: '100%' }} />
+        {/* Floating header */}
+        <div className="absolute top-0 left-0 w-full flex flex-row items-center justify-between px-6 py-4 z-10 pointer-events-none">
+          <span className="text-lg font-semibold text-slate-800 dark:text-slate-100 drop-shadow-sm tracking-tight">
+            {metric === 'karma' ? 'Karma' : metric === 'posts' ? 'Posts' : metric === 'comments' ? 'Comments' : 'Posts + Comments'}
+          </span>
+          {showLegend && chartData.datasets.length > 1 && (
+            <div className="flex flex-row gap-4">
+              {chartData.datasets.map((ds) => (
+                <span key={ds.label} className="flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-slate-300">
+                  <span style={{ background: ds.borderColor, width: 12, height: 4, borderRadius: 2, display: 'inline-block' }}></span>
+                  {ds.label}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+        {/* Chart area */}
+        <div className="flex-1 flex items-center justify-center w-full pt-16 pb-4 md:pb-8">
+          <Line options={chartOptions} data={chartData} style={{ height: '100%' }} />
+        </div>
       </div>
     );
   }

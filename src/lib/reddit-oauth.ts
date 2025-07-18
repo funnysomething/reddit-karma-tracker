@@ -135,11 +135,42 @@ export class RedditOAuthClient {
         throw new Error(`Invalid user data structure for ${username}`);
       }
 
+      // Fetch actual comment count by paginating through user's comments
+      let commentCount = 0;
+      let after: string | null = null;
+      let fetchMore = true;
+      const maxPages = 20; // To avoid excessive requests, limit to 2000 comments
+      let page = 0;
+      while (fetchMore && page < maxPages) {
+        const commentsResp: Response = await fetch(
+          `https://oauth.reddit.com/user/${username}/comments?limit=100${after ? `&after=${after}` : ''}`,
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              'User-Agent': this.config.userAgent,
+              Accept: 'application/json',
+            },
+          }
+        );
+        if (!commentsResp.ok) break;
+        const commentsData: {
+          data?: {
+            children?: unknown[];
+            after?: string | null;
+          };
+        } = await commentsResp.json();
+        const children = commentsData?.data?.children || [];
+        commentCount += children.length;
+        after = typeof commentsData?.data?.after === 'string' ? commentsData.data.after : null;
+        fetchMore = !!after && children.length > 0;
+        page++;
+      }
+
       return {
         username: userData.name,
         karma: userData.link_karma + userData.comment_karma,
-        post_count: userData.link_karma, // Using link_karma as post count approximation
-        comment_count: userData.comment_karma, // Using comment_karma as comment count
+        post_count: userData.link_karma, // Still using link_karma as post count approximation
+        comment_count: commentCount,
       };
     } catch (error) {
       console.error(`Error fetching Reddit user data for ${username}:`, error);
