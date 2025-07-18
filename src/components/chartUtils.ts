@@ -1,5 +1,6 @@
+import { HistoryData } from '../lib/types';
 // Utility to add a synthetic 'Combined' user to the chart data for the combined view
-export function getCombinedChartData(allUsersHistory) {
+export function getCombinedChartData(allUsersHistory: Record<string, HistoryData[]>) {
   if (!allUsersHistory || Object.keys(allUsersHistory).length < 2) return allUsersHistory;
 
   // Collect all unique timestamps
@@ -7,7 +8,7 @@ export function getCombinedChartData(allUsersHistory) {
   Object.values(allUsersHistory).forEach((history) => {
     history.forEach((item) => allTimestamps.add(item.collected_at));
   });
-  const sortedTimestamps = Array.from(allTimestamps).sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
+  const sortedTimestamps = (Array.from(allTimestamps) as string[]).sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
 
   // For each timestamp, sum all users' values
   const combinedHistory = sortedTimestamps.map((ts) => {
@@ -21,6 +22,8 @@ export function getCombinedChartData(allUsersHistory) {
       }
     });
     return {
+      id: `combined-${ts}`,
+      username: 'Combined',
       collected_at: ts,
       karma,
       post_count,
