@@ -8,13 +8,17 @@ interface UserManagementProps {
   onUserAdded?: (user: TrackedUser) => void;
   onUserRemoved?: (username: string) => void;
   initialUsers?: TrackedUser[];
+  selectedUser?: string | null;
+  onSelectUser?: (username: string | null) => void;
 }
 
 export default function UserManagement({
   className = '',
   onUserAdded,
   onUserRemoved,
-  initialUsers = []
+  initialUsers = [],
+  selectedUser,
+  onSelectUser
 }: UserManagementProps) {
   const [username, setUsername] = useState('');
   const [trackedUsers, setTrackedUsers] = useState<TrackedUser[]>(initialUsers);
@@ -215,7 +219,6 @@ export default function UserManagement({
         <h3 className="text-lg font-medium text-secondary mb-3">
           Currently Tracked Users ({trackedUsers.length})
         </h3>
-
         {isLoadingUsers ? (
           <div className="flex items-center justify-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent-primary"></div>
@@ -232,37 +235,30 @@ export default function UserManagement({
         ) : (
           <div className="space-y-2">
             {trackedUsers.map((user) => (
-              <div
+              <button
                 key={user.username}
-                className="flex items-center justify-between p-3 bg-tertiary rounded-md hover:bg-accent transition-theme"
+                onClick={() => onSelectUser?.(user.username)}
+                className={`w-full text-left p-2 rounded-lg transition-all flex items-center gap-2 ${selectedUser === user.username ? 'bg-accent-primary/10 border border-accent-primary text-accent-primary' : 'hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200'}`}
               >
-                <div className="flex items-center">
-                  <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center mr-3">
-                    <span className="text-white text-sm font-medium">
-                      {user.username.charAt(0).toUpperCase()}
-                    </span>
-                  </div>
-                  <div>
-                    <p className="font-medium text-primary">u/{user.username}</p>
-                    <p className="text-xs text-muted">
-                      Added {new Date(user.created_at).toLocaleDateString()}
-                      {user.updated_at && user.updated_at !== user.created_at && (
-                        <span> • Last updated {new Date(user.updated_at).toLocaleDateString()}</span>
-                      )}
-                    </p>
-                  </div>
-                </div>
+                <span className="w-7 h-7 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold text-base">{user.username.charAt(0).toUpperCase()}</span>
+                <span className="font-medium">u/{user.username}</span>
                 <button
-                  onClick={() => handleRemoveUser(user.username)}
-                  className="p-2 text-accent-destructive hover:text-accent-destructive/80 hover:bg-accent-destructive/10 rounded-md transition-theme"
+                  onClick={e => { e.stopPropagation(); handleRemoveUser(user.username); }}
+                  className="ml-auto p-2 text-accent-destructive hover:text-accent-destructive/80 hover:bg-accent-destructive/10 rounded-md transition-theme"
                   title={`Remove ${user.username} from tracking`}
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                   </svg>
                 </button>
-              </div>
+              </button>
             ))}
+            {selectedUser && (
+              <button
+                onClick={() => onSelectUser?.(null)}
+                className="mt-3 text-xs text-slate-400 hover:text-accent-primary underline"
+              >Clear selection</button>
+            )}
           </div>
         )}
       </div>

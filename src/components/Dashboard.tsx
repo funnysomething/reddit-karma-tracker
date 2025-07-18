@@ -14,14 +14,14 @@ export default function Dashboard() {
   const [userHistory, setUserHistory] = useState<HistoryData[]>([]);
   const [allUsersHistory, setAllUsersHistory] = useState<Record<string, HistoryData[]>>({});
   const [viewMode, setViewMode] = useState<'individual' | 'combined'>('individual');
-  const [isLoadingUsers, setIsLoadingUsers] = useState(true);
+  // Removed unused isLoadingUsers state
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [isLoadingAllHistory, setIsLoadingAllHistory] = useState(false);
 
   // Load tracked users on mount
   useEffect(() => {
     const loadTrackedUsers = async () => {
-      setIsLoadingUsers(true);
+      // setIsLoadingUsers removed
       try {
         const res = await fetch('/api/users');
         const data = await res.json();
@@ -33,7 +33,7 @@ export default function Dashboard() {
       } catch {
         setTrackedUsers([]);
       } finally {
-        setIsLoadingUsers(false);
+        // setIsLoadingUsers removed
       }
     };
     loadTrackedUsers();
@@ -120,37 +120,14 @@ export default function Dashboard() {
         {/* Sidebar: Combined Manage + Tracked Users */}
         <aside className="w-full max-w-xs min-w-[260px] bg-white/70 dark:bg-slate-900/70 border-r border-slate-200 dark:border-slate-800 px-4 py-8 flex flex-col gap-8 shadow-lg z-10">
           <div>
-            <h2 className="text-lg font-semibold mb-2 text-slate-800 dark:text-slate-100">Tracked Users</h2>
             <UserManagement
               onUserAdded={handleUserAdded}
               onUserRemoved={handleUserRemoved}
               initialUsers={trackedUsers}
+              selectedUser={selectedUser}
+              onSelectUser={setSelectedUser}
               className="!bg-transparent !shadow-none !p-0"
             />
-            <div className="mt-6 space-y-2">
-              {isLoadingUsers ? (
-                <div className="text-slate-400 text-sm italic">Loading users...</div>
-              ) : trackedUsers.length === 0 ? (
-                <div className="text-slate-400 text-sm italic">No users yet</div>
-              ) : (
-                trackedUsers.map((user) => (
-                  <button
-                    key={user.username}
-                    onClick={() => setSelectedUser(user.username)}
-                    className={`w-full text-left p-2 rounded-lg transition-all flex items-center gap-2 ${selectedUser === user.username ? 'bg-accent-primary/10 border border-accent-primary text-accent-primary' : 'hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200'}`}
-                  >
-                    <span className="w-7 h-7 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold text-base">{user.username.charAt(0).toUpperCase()}</span>
-                    <span className="font-medium">u/{user.username}</span>
-                  </button>
-                ))
-              )}
-            </div>
-            {selectedUser && (
-              <button
-                onClick={() => setSelectedUser(null)}
-                className="mt-3 text-xs text-slate-400 hover:text-accent-primary underline"
-              >Clear selection</button>
-            )}
           </div>
           <div className="mt-8">
             <h2 className="text-lg font-semibold mb-2 text-slate-800 dark:text-slate-100">Chart View</h2>
