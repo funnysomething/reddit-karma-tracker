@@ -38,6 +38,7 @@ interface AdvancedChartContainerProps {
   data: Record<string, HistoryData[]>;
   className?: string;
   height?: number;
+  showAdvancedStats?: boolean;
 }
 
 type ChartType = 'line' | 'bar' | 'growth' | 'distribution' | 'leaderboard';
@@ -59,7 +60,8 @@ const USER_COLORS = [
 export default function AdvancedChartContainer({
   data,
   className = '',
-  height = 400
+  height = 400,
+  showAdvancedStats = false
 }: AdvancedChartContainerProps) {
   const { theme } = useTheme();
   const [chartType, setChartType] = useState<ChartType>('line');
@@ -541,63 +543,65 @@ export default function AdvancedChartContainer({
       </div>
 
       {/* Statistics Panel */}
-      <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-tertiary rounded-lg p-4">
-          <h4 className="text-sm font-medium text-secondary mb-2">Top Performer</h4>
-          {leaderboardData.length > 0 && (
+      {showAdvancedStats && (
+        <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-tertiary rounded-lg p-4">
+            <h4 className="text-sm font-medium text-secondary mb-2">Top Performer</h4>
+            {leaderboardData.length > 0 && (
+              <div>
+                <p className="text-lg font-bold text-accent-primary">
+                  u/{leaderboardData[0].username}
+                </p>
+                <p className="text-sm text-muted">
+                  {metric === 'karma' 
+                    ? `${leaderboardData[0].karma.toLocaleString()} karma`
+                    : metric === 'posts'
+                    ? `${leaderboardData[0].posts.toLocaleString()} posts`
+                    : `${leaderboardData[0].comments.toLocaleString()} comments`
+                  }
+                </p>
+              </div>
+            )}
+          </div>
+          
+          <div className="bg-tertiary rounded-lg p-4">
+            <h4 className="text-sm font-medium text-secondary mb-2">Fastest Growth</h4>
+            {Object.keys(growthData).length > 0 && (
+              <div>
+                {(() => {
+                  const fastestGrowth = Object.values(growthData).reduce((max, current) => {
+                    const currentGrowth = metric === 'karma' ? current.karmaGrowth : metric === 'posts' ? current.postGrowth : current.commentGrowth;
+                    const maxGrowth = metric === 'karma' ? max.karmaGrowth : metric === 'posts' ? max.postGrowth : max.commentGrowth;
+                    return currentGrowth > maxGrowth ? current : max;
+                  });
+                  const growthValue = metric === 'karma' ? fastestGrowth.karmaGrowth : metric === 'posts' ? fastestGrowth.postGrowth : fastestGrowth.commentGrowth;
+                  
+                  return (
+                    <>
+                      <p className="text-lg font-bold text-green-600">
+                        u/{fastestGrowth.username}
+                      </p>
+                      <p className="text-sm text-muted">
+                        {growthValue >= 0 ? '+' : ''}{growthValue.toFixed(1)}% growth
+                      </p>
+                    </>
+                  );
+                })()}
+              </div>
+            )}
+          </div>
+          
+          <div className="bg-tertiary rounded-lg p-4">
+            <h4 className="text-sm font-medium text-secondary mb-2">Total Tracked</h4>
             <div>
-              <p className="text-lg font-bold text-accent-primary">
-                u/{leaderboardData[0].username}
-              </p>
+              <p className="text-lg font-bold text-primary">{userCount}</p>
               <p className="text-sm text-muted">
-                {metric === 'karma' 
-                  ? `${leaderboardData[0].karma.toLocaleString()} karma`
-                  : metric === 'posts'
-                  ? `${leaderboardData[0].posts.toLocaleString()} posts`
-                  : `${leaderboardData[0].comments.toLocaleString()} comments`
-                }
+                {Object.values(filteredData).reduce((sum, history) => sum + history.length, 0)} data points
               </p>
             </div>
-          )}
-        </div>
-        
-        <div className="bg-tertiary rounded-lg p-4">
-          <h4 className="text-sm font-medium text-secondary mb-2">Fastest Growth</h4>
-          {Object.keys(growthData).length > 0 && (
-            <div>
-              {(() => {
-                const fastestGrowth = Object.values(growthData).reduce((max, current) => {
-                  const currentGrowth = metric === 'karma' ? current.karmaGrowth : metric === 'posts' ? current.postGrowth : current.commentGrowth;
-                  const maxGrowth = metric === 'karma' ? max.karmaGrowth : metric === 'posts' ? max.postGrowth : max.commentGrowth;
-                  return currentGrowth > maxGrowth ? current : max;
-                });
-                const growthValue = metric === 'karma' ? fastestGrowth.karmaGrowth : metric === 'posts' ? fastestGrowth.postGrowth : fastestGrowth.commentGrowth;
-                
-                return (
-                  <>
-                    <p className="text-lg font-bold text-green-600">
-                      u/{fastestGrowth.username}
-                    </p>
-                    <p className="text-sm text-muted">
-                      {growthValue >= 0 ? '+' : ''}{growthValue.toFixed(1)}% growth
-                    </p>
-                  </>
-                );
-              })()}
-            </div>
-          )}
-        </div>
-        
-        <div className="bg-tertiary rounded-lg p-4">
-          <h4 className="text-sm font-medium text-secondary mb-2">Total Tracked</h4>
-          <div>
-            <p className="text-lg font-bold text-primary">{userCount}</p>
-            <p className="text-sm text-muted">
-              {Object.values(filteredData).reduce((sum, history) => sum + history.length, 0)} data points
-            </p>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

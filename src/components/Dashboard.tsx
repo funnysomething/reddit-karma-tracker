@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import UserManagement from './UserManagement';
 import AdvancedChartContainer from './AdvancedChartContainer';
-import CombinedChartContainer from './CombinedChartContainer';
 import ThemeToggle from './ThemeToggle';
 import { TrackedUser, HistoryData } from '../lib/types';
 
@@ -170,10 +169,11 @@ export default function Dashboard() {
                     <span className="ml-3 text-secondary">Loading chart data for u/{selectedUser}...</span>
                   </div>
                 ) : (
-                  <CombinedChartContainer
+                  <AdvancedChartContainer
                     data={selectedUser ? { [selectedUser]: userHistory } : {}}
                     height={420}
                     className="!bg-transparent !shadow-none !p-0"
+                    showAdvancedStats={true}
                   />
                 )
               ) : (
@@ -207,6 +207,7 @@ export default function Dashboard() {
                     data={allUsersHistory}
                     height={420}
                     className="!bg-transparent !shadow-none !p-0"
+                    showAdvancedStats={true}
                   />
                 )
               ) : (
